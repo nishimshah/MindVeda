@@ -53,8 +53,8 @@ function MemoryMatch({ onBack }) {
         <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5" style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.25)' }}>
           <Grid3X3 className="w-10 h-10" style={{ color: '#a78bfa' }} />
         </div>
-        <h2 className="text-3xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>Memory Match</h2>
-        <p className="text-sm mb-8" style={{ color: '#9ba3cc' }}>Flip cards to find matching pairs. Test your memory!</p>
+        <h2 className="text-3xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>Memory Match</h2>
+        <p className="text-sm mb-8" style={{ color: 'var(--text-secondary)' }}>Flip cards to find matching pairs. Test your memory!</p>
         <button onClick={startGame} className="btn-primary !px-10">
           Start Game
         </button>
@@ -69,12 +69,12 @@ function MemoryMatch({ onBack }) {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <button onClick={onBack} className="flex items-center gap-1.5 text-sm cursor-pointer bg-transparent border-none" style={{ color: '#9ba3cc' }}>
+        <button onClick={onBack} className="flex items-center gap-1.5 text-sm cursor-pointer bg-transparent border-none" style={{ color: 'var(--text-muted)' }}>
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
         <div className="flex items-center gap-5 text-sm">
-          <span style={{ color: '#9ba3cc' }}>Moves: <strong style={{ color: '#f0f2ff' }}>{moves}</strong></span>
-          <span style={{ color: '#9ba3cc' }}>Pairs: <strong style={{ color: '#10b981' }}>{matched.length / 2}/{cards.length / 2}</strong></span>
+          <span style={{ color: 'var(--text-muted)' }}>Moves: <strong style={{ color: 'var(--text-primary)' }}>{moves}</strong></span>
+          <span style={{ color: 'var(--text-muted)' }}>Pairs: <strong style={{ color: 'var(--accent-green)' }}>{matched.length / 2}/{cards.length / 2}</strong></span>
         </div>
         <button onClick={startGame} className="flex items-center gap-1.5 text-sm cursor-pointer bg-transparent border-none" style={{ color: '#a78bfa' }}>
           <RotateCcw className="w-3.5 h-3.5" /> Reset
@@ -108,10 +108,11 @@ function MemoryMatch({ onBack }) {
               whileTap={{ scale: 0.93 }}
               className="aspect-square rounded-2xl text-3xl flex items-center justify-center cursor-pointer border-2 transition-all font-medium"
               style={{
-                background:  isMatched ? 'rgba(16,185,129,0.12)' : isFlipped ? 'rgba(124,58,237,0.15)' : 'rgba(26,31,56,0.8)',
-                borderColor: isMatched ? '#10b981' : isFlipped ? '#7c3aed' : 'rgba(255,255,255,0.07)',
-                boxShadow:   isMatched ? '0 0 20px rgba(16,185,129,0.2)' : isFlipped ? '0 0 20px rgba(124,58,237,0.2)' : 'none',
+                background:  isMatched ? 'rgba(16,185,129,0.12)' : isFlipped ? 'var(--accent-p-glow)' : 'var(--bg-surface-1)',
+                borderColor: isMatched ? 'var(--accent-green)' : isFlipped ? 'var(--accent-primary)' : 'var(--border-base)',
+                boxShadow:   isMatched ? '0 0 20px rgba(16,185,129,0.2)' : isFlipped ? '0 0 20px var(--accent-p-glow)' : 'none',
                 fontSize:    isRevealed ? '1.75rem' : '1.2rem',
+                color:       isRevealed ? 'var(--text-primary)' : 'var(--text-muted)',
               }}
             >
               {isRevealed ? card.emoji : '?'}
@@ -170,10 +171,10 @@ function PatternGame({ onBack }) {
         <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5" style={{ background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.25)' }}>
           <Eye className="w-10 h-10" style={{ color: '#22d3ee' }} />
         </div>
-        <h2 className="text-3xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>Pattern Recognition</h2>
-        <p className="text-sm mb-8" style={{ color: '#9ba3cc' }}>Watch the sequence light up, then repeat it back.</p>
+        <h2 className="text-3xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>Pattern Recognition</h2>
+        <p className="text-sm mb-8" style={{ color: 'var(--text-secondary)' }}>Watch the sequence light up, then repeat it back.</p>
         <button onClick={() => startRound(1)} className="btn-primary !px-10">Start Game</button>
-        <button onClick={onBack} className="block mx-auto mt-4 text-sm cursor-pointer bg-transparent border-none flex items-center gap-1.5 justify-center" style={{ color: '#596080' }}>
+        <button onClick={onBack} className="block mx-auto mt-4 text-sm cursor-pointer bg-transparent border-none flex items-center gap-1.5 justify-center" style={{ color: 'var(--text-muted)' }}>
           <ArrowLeft className="w-3.5 h-3.5" /> Back to games
         </button>
       </div>
@@ -183,12 +184,12 @@ function PatternGame({ onBack }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <button onClick={() => { setGameState('idle'); setLevel(1); }} className="flex items-center gap-1.5 text-sm cursor-pointer bg-transparent border-none" style={{ color: '#9ba3cc' }}>
+        <button onClick={() => { setGameState('idle'); setLevel(1); }} className="flex items-center gap-1.5 text-sm cursor-pointer bg-transparent border-none" style={{ color: 'var(--text-muted)' }}>
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
         <div className="flex items-center gap-2">
-          <Star className="w-4 h-4" style={{ color: '#f59e0b' }} />
-          <span className="font-black text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>Level {level}</span>
+          <Star className="w-4 h-4" style={{ color: 'var(--accent-amber)' }} />
+          <span className="font-black text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>Level {level}</span>
         </div>
       </div>
 
@@ -272,13 +273,13 @@ function ReactionTest({ onBack }) {
         <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)' }}>
           <Zap className="w-10 h-10" style={{ color: '#fbbf24' }} />
         </div>
-        <h2 className="text-3xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>Reaction Test</h2>
-        <p className="text-sm mb-4" style={{ color: '#9ba3cc' }}>Click the moment the screen turns green!</p>
+        <h2 className="text-3xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>Reaction Test</h2>
+        <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>Click the moment the screen turns green!</p>
         {attempts.length > 0 && (
-          <p className="text-xs mb-6" style={{ color: '#596080' }}>Your best: <strong style={{ color: '#f59e0b' }}>{bestTime}ms</strong> · {attempts.length} attempt{attempts.length > 1 ? 's' : ''}</p>
+          <p className="text-xs mb-6" style={{ color: 'var(--text-muted)' }}>Your best: <strong style={{ color: 'var(--accent-amber)' }}>{bestTime}ms</strong> · {attempts.length} attempt{attempts.length > 1 ? 's' : ''}</p>
         )}
         <button onClick={startTest} className="btn-primary !px-10">Start Test</button>
-        <button onClick={onBack} className="block mx-auto mt-4 text-sm cursor-pointer bg-transparent border-none flex items-center gap-1.5 justify-center" style={{ color: '#596080' }}>
+        <button onClick={onBack} className="block mx-auto mt-4 text-sm cursor-pointer bg-transparent border-none flex items-center gap-1.5 justify-center" style={{ color: 'var(--text-muted)' }}>
           <ArrowLeft className="w-3.5 h-3.5" /> Back to games
         </button>
       </div>
@@ -295,7 +296,7 @@ function ReactionTest({ onBack }) {
 
   return (
     <div>
-      <button onClick={() => setGameState('idle')} className="flex items-center gap-1.5 text-sm cursor-pointer bg-transparent border-none mb-6" style={{ color: '#9ba3cc' }}>
+      <button onClick={() => setGameState('idle')} className="flex items-center gap-1.5 text-sm cursor-pointer bg-transparent border-none mb-6" style={{ color: 'var(--text-muted)' }}>
         <ArrowLeft className="w-4 h-4" /> Back
       </button>
 
@@ -325,7 +326,7 @@ function ReactionTest({ onBack }) {
             </div>
             <p className="text-xl font-semibold mb-1" style={{ color: rating.color }}>{rating.label}</p>
             {bestTime < Infinity && (
-              <p className="text-xs mb-5" style={{ color: '#596080' }}>Best: {bestTime}ms · Attempts: {attempts.length}</p>
+              <p className="text-xs mb-5" style={{ color: 'var(--text-muted)' }}>Best: {bestTime}ms · Attempts: {attempts.length}</p>
             )}
             <button onClick={startTest} className="btn-primary !px-8">
               <RotateCcw className="w-4 h-4" /> Try Again
@@ -411,10 +412,10 @@ export default function BrainTraining() {
                     {game.tag}
                   </div>
 
-                  <h3 className="font-black text-xl mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>
+                  <h3 className="font-black text-xl mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
                     {game.title}
                   </h3>
-                  <p className="text-sm" style={{ color: '#9ba3cc' }}>
+                  <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
                     {game.desc}
                   </p>
 

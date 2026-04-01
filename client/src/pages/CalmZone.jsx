@@ -43,8 +43,26 @@ export default function CalmZone() {
   const medRef                              = useRef(null);
 
   const [soundPlaying, setSoundPlaying]     = useState(null);
+  const audioRef = useRef(null);
 
-  // Breathing engine
+  const speak = (text) => {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Try to find a calming voice
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(v => 
+      v.name.includes('Female') || v.name.includes('Google US English') || v.name.includes('Samantha')
+    );
+    if (preferredVoice) utterance.voice = preferredVoice;
+    
+    utterance.rate = 0.8; // Slower for meditation
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Breathing engine ... unchanged ...
   useEffect(() => {
     if (!breathActive) {
       clearInterval(breathRef.current);
@@ -64,20 +82,69 @@ export default function CalmZone() {
     return () => clearInterval(breathRef.current);
   }, [breathActive, breathPattern]);
 
-  // Meditation timer
+  // Meditation timer + Voice
   useEffect(() => {
-    if (!meditating) { clearInterval(medRef.current); return; }
-    medRef.current = setInterval(() => {
-      setMedTime(t => {
-        const n = t + 1;
-        const idx = meditationSteps.findLastIndex(s => s.time <= n);
-        if (idx >= 0) setCurrentStep(idx);
-        if (n >= 90) { setMeditating(false); return 0; }
-        return n;
-      });
-    }, 1000);
-    return () => clearInterval(medRef.current);
+    if (!meditating) { 
+      clearInterval(medRef.current); 
+      window.speechSynthesis.cancel();
+      return; 
+    }
+    
+    // Small delay to ensure voices are loaded on some browsers
+    const startMeditation = () => {
+      speak(meditationSteps[0].text);
+      medRef.current = setInterval(() => {
+        setMedTime(t => {
+          const n = t + 1;
+          const idx = meditationSteps.findLastIndex(s => s.time <= n);
+          if (idx >= 0 && idx !== currentStep) {
+            setCurrentStep(idx);
+            speak(meditationSteps[idx].text);
+          }
+          if (n >= 90) { setMeditating(false); return 0; }
+          return n;
+        });
+      }, 1000);
+    };
+
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        startMeditation();
+        window.speechSynthesis.onvoiceschanged = null;
+      };
+    } else {
+      startMeditation();
+    }
+
+    return () => {
+      clearInterval(medRef.current);
+      window.speechSynthesis.cancel();
+    };
   }, [meditating]);
+
+  // Sound Engine
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
+    if (soundPlaying) {
+      const soundUrls = {
+        Rain:   'https://assets.mixkit.co/active_storage/sfx/2458/2458-preview.mp3',
+        Forest: 'https://assets.mixkit.co/active_storage/sfx/2387/2387-preview.mp3',
+        Ocean:  'https://assets.mixkit.co/active_storage/sfx/1202/1202-preview.mp3',
+        Night:  'https://assets.mixkit.co/active_storage/sfx/1110/1110-preview.mp3',
+      };
+      audioRef.current = new Audio(soundUrls[soundPlaying]);
+      audioRef.current.loop = true;
+      audioRef.current.play().catch(e => console.log('Audio play failed:', e));
+    }
+
+    return () => {
+      if (audioRef.current) audioRef.current.pause();
+    };
+  }, [soundPlaying]);
 
   const scale = breathPhase === 'inhale' || breathPhase === 'hold' ? 1.55 : 1;
   const activeColor = phaseColors[breathPhase];
@@ -99,8 +166,8 @@ export default function CalmZone() {
           className="glass-card p-7"
         >
           <div className="flex items-center gap-2 mb-6">
-            <Wind className="w-5 h-5" style={{ color: '#7c3aed' }} />
-            <h3 className="font-black text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>
+            <Wind className="w-5 h-5" style={{ color: 'var(--accent-primary)' }} />
+            <h3 className="font-black text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
               Breathing Exercise
             </h3>
           </div>
@@ -113,9 +180,9 @@ export default function CalmZone() {
                 onClick={() => { setBreathPattern(p); setBreathActive(false); }}
                 className="px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer border-none transition-all"
                 style={{
-                  background: breathPattern.name === p.name ? `${p.color}20` : 'rgba(255,255,255,0.04)',
-                  color:      breathPattern.name === p.name ? p.color : '#596080',
-                  border:     `1px solid ${breathPattern.name === p.name ? `${p.color}40` : 'rgba(255,255,255,0.07)'}`,
+                  background: breathPattern.name === p.name ? `${p.color}20` : 'var(--bg-surface-1)',
+                  color:      breathPattern.name === p.name ? p.color : 'var(--text-muted)',
+                  border:     `1px solid ${breathPattern.name === p.name ? `${p.color}40` : 'var(--border-base)'}`,
                 }}
               >
                 {p.name}
@@ -160,7 +227,7 @@ export default function CalmZone() {
             </div>
           </div>
 
-          <div className="text-center text-xs mb-6" style={{ color: '#596080' }}>
+          <div className="text-center text-xs mb-6" style={{ color: 'var(--text-muted)' }}>
             {breathingPatterns.find(p => p.name === breathPattern.name)?.label}
             {' — '}↑{breathPattern.inhale}s hold {breathPattern.hold}s ↓{breathPattern.exhale}s
           </div>
@@ -176,7 +243,7 @@ export default function CalmZone() {
             <button
               onClick={() => setBreathActive(false)}
               className="w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer border-none transition-all"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#596080' }}
+              style={{ background: 'var(--bg-surface-1)', border: '1px solid var(--border-base)', color: 'var(--text-muted)' }}
             >
               <RotateCcw className="w-4 h-4" />
             </button>
@@ -191,8 +258,8 @@ export default function CalmZone() {
           className="glass-card p-7"
         >
           <div className="flex items-center gap-2 mb-6">
-            <Leaf className="w-5 h-5" style={{ color: '#10b981' }} />
-            <h3 className="font-black text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>
+            <Leaf className="w-5 h-5" style={{ color: 'var(--accent-green)' }} />
+            <h3 className="font-black text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
               Guided Meditation
             </h3>
           </div>
@@ -202,22 +269,22 @@ export default function CalmZone() {
               {meditating ? (
                 <>
                   {/* Progress ring */}
-                  <div className="relative w-20 h-20 mx-auto mb-6">
-                    <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-                      <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
-                      <circle
-                        cx="40" cy="40" r="34" fill="none"
-                        stroke="#10b981" strokeWidth="5" strokeLinecap="round"
+                    <div className="relative w-20 h-20 mx-auto mb-6">
+                      <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                        <circle cx="40" cy="40" r="34" fill="none" stroke="var(--border-base)" strokeWidth="5" />
+                        <circle
+                          cx="40" cy="40" r="34" fill="none"
+                          stroke="var(--accent-green)" strokeWidth="5" strokeLinecap="round"
                         strokeDasharray={`${2 * Math.PI * 34}`}
                         strokeDashoffset={`${2 * Math.PI * 34 * (1 - medTime / 90)}`}
                         style={{ transition: 'stroke-dashoffset 1s linear' }}
                       />
                     </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-sm font-bold" style={{ color: '#10b981', fontFamily: 'Outfit, sans-serif' }}>
-                        {Math.floor(medTime / 60)}:{String(medTime % 60).padStart(2, '0')}
-                      </span>
-                    </div>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-sm font-bold" style={{ color: 'var(--accent-green)', fontFamily: 'Outfit, sans-serif' }}>
+                          {Math.floor(medTime / 60)}:{String(medTime % 60).padStart(2, '0')}
+                        </span>
+                      </div>
                   </div>
                   <AnimatePresence mode="wait">
                     <motion.p
@@ -227,7 +294,7 @@ export default function CalmZone() {
                       exit={{ opacity: 0, y: -8 }}
                       transition={{ duration: 0.5 }}
                       className="text-lg leading-relaxed mb-6"
-                      style={{ color: '#c4cbf0' }}
+                      style={{ color: 'var(--text-secondary)' }}
                     >
                       {meditationSteps[currentStep]?.text}
                     </motion.p>
@@ -238,11 +305,11 @@ export default function CalmZone() {
                   <div className="w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 float-animation" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' }}>
                     <Leaf className="w-8 h-8" style={{ color: '#10b981' }} />
                   </div>
-                  <h4 className="font-black text-lg mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>
+                  <h4 className="font-black text-lg mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
                     90-Second Session
                   </h4>
-                  <p className="text-sm mb-2" style={{ color: '#9ba3cc' }}>Find a quiet spot.</p>
-                  <p className="text-sm mb-6" style={{ color: '#596080' }}>Let me guide you through a calming reset.</p>
+                  <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Find a quiet spot.</p>
+                  <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>Let me guide you through a calming reset.</p>
                 </div>
               )}
 
@@ -271,8 +338,8 @@ export default function CalmZone() {
         className="glass-card p-7"
       >
         <div className="flex items-center gap-2 mb-6">
-          <Volume2 className="w-5 h-5" style={{ color: '#06b6d4' }} />
-          <h3 className="font-black text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>
+          <Volume2 className="w-5 h-5" style={{ color: 'var(--accent-secondary)' }} />
+          <h3 className="font-black text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
             Ambient Sounds
           </h3>
         </div>
@@ -286,8 +353,8 @@ export default function CalmZone() {
                 whileTap={{ scale: 0.96 }}
                 className="p-5 rounded-2xl border-2 text-center cursor-pointer transition-all bg-transparent relative overflow-hidden"
                 style={{
-                  borderColor: playing ? s.color : 'rgba(255,255,255,0.07)',
-                  background:  playing ? `${s.color}12` : 'rgba(255,255,255,0.03)',
+                  borderColor: playing ? s.color : 'var(--border-base)',
+                  background:  playing ? `${s.color}12` : 'var(--bg-surface-1)',
                 }}
               >
                 {playing && (
@@ -299,10 +366,10 @@ export default function CalmZone() {
                   />
                 )}
                 <div className="text-4xl mb-2">{s.emoji}</div>
-                <div className="font-bold text-sm mb-1" style={{ fontFamily: 'Outfit, sans-serif', color: playing ? s.color : '#f0f2ff' }}>
+                <div className="font-bold text-sm mb-1" style={{ fontFamily: 'Outfit, sans-serif', color: playing ? s.color : 'var(--text-primary)' }}>
                   {s.name}
                 </div>
-                <div className="text-xs" style={{ color: playing ? s.color : '#373e60' }}>
+                <div className="text-xs" style={{ color: playing ? s.color : 'var(--text-muted)' }}>
                   {playing ? '🔊 Playing' : 'Tap to play'}
                 </div>
               </motion.button>

@@ -100,10 +100,10 @@ export default function Onboarding() {
         <div className="flex items-center gap-2 mb-8">
           {[0, 1, 2].map(i => (
             <div key={i} className="relative flex-1">
-              <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+              <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-base)' }}>
                 <motion.div
                   className="h-full rounded-full"
-                  style={{ background: 'linear-gradient(90deg, #7c3aed, #06b6d4)' }}
+                  style={{ background: 'var(--accent-primary)' }}
                   initial={{ width: i < step ? '100%' : '0%' }}
                   animate={{ width: i === step ? '50%' : i < step ? '100%' : '0%' }}
                   transition={{ duration: 0.4 }}
@@ -111,7 +111,7 @@ export default function Onboarding() {
               </div>
             </div>
           ))}
-          <span className="text-xs font-medium shrink-0" style={{ color: '#596080' }}>
+          <span className="text-xs font-medium shrink-0" style={{ color: 'var(--text-muted)' }}>
             {step + 1} / 3
           </span>
         </div>
@@ -133,10 +133,10 @@ export default function Onboarding() {
                 >
                   <StepIcon className="w-7 h-7" style={{ color: stepsMeta[step].iconColor }} />
                 </div>
-                <h2 className="text-2xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.02em', color: '#f0f2ff' }}>
+                <h2 className="text-2xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
                   {stepsMeta[step].title}
                 </h2>
-                <p className="text-sm" style={{ color: '#9ba3cc' }}>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                   {stepsMeta[step].subtitle}
                 </p>
               </div>
@@ -153,8 +153,8 @@ export default function Onboarding() {
                         whileTap={{ scale: 0.97 }}
                         className="p-5 rounded-2xl border-2 text-left cursor-pointer transition-all relative overflow-hidden"
                         style={{
-                          borderColor: selected ? ag.color : 'rgba(255,255,255,0.08)',
-                          background: selected ? `${ag.color}12` : 'rgba(255,255,255,0.03)',
+                          borderColor: selected ? ag.color : 'var(--border-base)',
+                          background: selected ? `${ag.color}12` : 'var(--bg-surface-1)',
                         }}
                       >
                         {selected && (
@@ -163,10 +163,10 @@ export default function Onboarding() {
                           </div>
                         )}
                         <div className="text-3xl mb-2">{ag.emoji}</div>
-                        <div className="font-bold text-sm mb-0.5" style={{ fontFamily: 'Outfit, sans-serif', color: selected ? ag.color : '#f0f2ff' }}>
+                        <div className="font-bold text-sm mb-0.5" style={{ fontFamily: 'Outfit, sans-serif', color: selected ? ag.color : 'var(--text-primary)' }}>
                           {ag.label}
                         </div>
-                        <div className="text-xs" style={{ color: '#596080' }}>{ag.desc}</div>
+                        <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{ag.desc}</div>
                       </motion.button>
                     );
                   })}
@@ -185,12 +185,12 @@ export default function Onboarding() {
                         whileTap={{ scale: 0.97 }}
                         className="p-4 rounded-xl border-2 text-left cursor-pointer transition-all flex items-center gap-3 relative"
                         style={{
-                          borderColor: selected ? goal.color : 'rgba(255,255,255,0.08)',
-                          background: selected ? `${goal.color}12` : 'rgba(255,255,255,0.03)',
+                          borderColor: selected ? goal.color : 'var(--border-base)',
+                          background: selected ? `${goal.color}12` : 'var(--bg-surface-1)',
                         }}
                       >
                         <span className="text-xl">{goal.icon}</span>
-                        <span className="font-semibold text-sm" style={{ color: selected ? goal.color : '#c4cbf0', fontFamily: 'Outfit, sans-serif' }}>
+                        <span className="font-semibold text-sm" style={{ color: selected ? goal.color : 'var(--text-secondary)', fontFamily: 'Outfit, sans-serif' }}>
                           {goal.label}
                         </span>
                         {selected && (
@@ -216,8 +216,8 @@ export default function Onboarding() {
                         whileTap={{ scale: 0.99 }}
                         className="w-full p-4 rounded-xl border-2 text-left cursor-pointer transition-all flex items-center gap-4"
                         style={{
-                          borderColor: selected ? need.color : 'rgba(255,255,255,0.08)',
-                          background: selected ? `${need.color}10` : 'rgba(255,255,255,0.03)',
+                          borderColor: selected ? need.color : 'var(--border-base)',
+                          background: selected ? `${need.color}10` : 'var(--bg-surface-1)',
                         }}
                       >
                         <div
@@ -230,10 +230,10 @@ export default function Onboarding() {
                           }
                         </div>
                         <div>
-                          <div className="font-semibold text-sm" style={{ color: selected ? need.color : '#f0f2ff', fontFamily: 'Outfit, sans-serif' }}>
+                          <div className="font-semibold text-sm" style={{ color: selected ? need.color : 'var(--text-primary)', fontFamily: 'Outfit, sans-serif' }}>
                             {need.label}
                           </div>
-                          <div className="text-xs mt-0.5" style={{ color: '#596080' }}>{need.desc}</div>
+                          <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{need.desc}</div>
                         </div>
                       </motion.button>
                     );
@@ -249,7 +249,7 @@ export default function Onboarding() {
               onClick={() => setStep(s => s - 1)}
               disabled={step === 0}
               className="flex items-center gap-1.5 text-sm font-medium cursor-pointer bg-transparent border-none transition-colors disabled:opacity-30"
-              style={{ color: '#9ba3cc' }}
+              style={{ color: 'var(--text-muted)' }}
             >
               <ChevronLeft className="w-4 h-4" /> Back
             </button>

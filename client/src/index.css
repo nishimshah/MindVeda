@@ -351,6 +351,99 @@ body.autism-mode * {
     margin-bottom: 2.5rem;
   }
 
+  /* ── Light Theme (Default/Premium) ── */
+  :root {
+    --bg-page: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-surface-1: #f1f5f9;
+    --bg-surface-2: #e2e8f0;
+    --bg-surface-3: #cbd5e1;
+    --bg-surface-accent: #f0f9ff;
+
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-inverse: #ffffff;
+
+    --accent-primary: #4f46e5;
+    --accent-secondary: #0891b2;
+    --accent-p-light: #6366f1;
+    --accent-p-glow: rgba(79,70,229,0.08);
+
+    --border-base: #e2e8f0;
+    --border-active: #c7d2fe;
+    
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(241, 245, 249, 0.5);
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+    --orb-opacity: 0.03;
+    --grid-color: rgba(0, 0, 0, 0.03);
+  }
+
+  .dark-theme {
+    --bg-page: #020617;
+    --bg-surface: #0f172a;
+    --bg-surface-1: #1e293b;
+    --bg-surface-2: #334155;
+    --bg-surface-3: #475569;
+    --bg-surface-accent: #1e1b4b;
+
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-inverse: #0f172a;
+
+    --accent-primary: #818cf8;
+    --accent-secondary: #22d3ee;
+    --accent-p-light: #a5b4fc;
+    --accent-p-glow: rgba(129,140,248,0.12);
+
+    --border-base: #1e293b;
+    --border-active: #312e81;
+
+    --glass-bg: rgba(15, 23, 42, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.04);
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+
+    --orb-opacity: 0.08;
+    --grid-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .calm-theme {
+    --bg-page: #f1f5f2;
+    --bg-surface: #ffffff;
+    --bg-surface-1: #e4ebe6;
+    --bg-surface-2: #d1dbd5;
+    --bg-surface-accent: #ebf2ee;
+
+    --text-primary: #2d3630;
+    --text-secondary: #4a574f;
+    --text-muted: #6a7a70;
+
+    --accent-primary: #5a826a;
+    --accent-secondary: #6b8e89;
+    --accent-p-light: #7da18a;
+    --accent-p-glow: rgba(90,130,106,0.1);
+
+    --border-base: #d1dbd5;
+    --border-active: #a9bdad;
+
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(90, 130, 106, 0.05);
+
+    --orb-opacity: 0.05;
+    --grid-color: rgba(0, 0, 0, 0.02);
+  }
+
   /* ── Layout ──────────────────────────────────────────── */
   .page-container {
     max-width: 1240px;

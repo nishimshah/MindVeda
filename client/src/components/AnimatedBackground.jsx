@@ -46,8 +46,8 @@ export default function AnimatedBackground({ variant = 'default' }) {
         className="absolute inset-0"
         style={{
           backgroundImage: `
-            linear-gradient(var(--text-primary) var(--grid-opacity) 1px, transparent 1px),
-            linear-gradient(90deg, var(--text-primary) var(--grid-opacity) 1px, transparent 1px)
+            linear-gradient(var(--grid-color) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-color) 1px, transparent 1px)
           `,
           backgroundSize: '60px 60px',
         }}

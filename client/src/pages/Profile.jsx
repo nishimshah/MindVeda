@@ -211,8 +211,8 @@ export default function Profile() {
                 whileTap={{ scale: 0.98 }}
                 className="p-4 rounded-2xl border-2 text-left cursor-pointer transition-all flex items-start gap-4 bg-transparent"
                 style={{
-                  borderColor: selected ? m.color : 'rgba(255,255,255,0.07)',
-                  background:  selected ? `${m.color}10` : 'rgba(255,255,255,0.03)',
+                  borderColor: selected ? m.color : 'var(--border-base)',
+                  background:  selected ? `${m.color}10` : 'var(--bg-surface-1)',
                 }}
               >
                 <div
@@ -226,10 +226,10 @@ export default function Profile() {
                   <m.icon className="w-5 h-5" style={{ color: m.color }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-sm" style={{ color: selected ? m.color : '#f0f2ff', fontFamily: 'Outfit, sans-serif' }}>
+                  <div className="font-bold text-sm" style={{ color: selected ? m.color : 'var(--text-primary)', fontFamily: 'Outfit, sans-serif' }}>
                     {m.label}
                   </div>
-                  <div className="text-xs mt-0.5 leading-relaxed" style={{ color: '#596080' }}>
+                  <div className="text-xs mt-0.5 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                     {m.desc}
                   </div>
                 </div>

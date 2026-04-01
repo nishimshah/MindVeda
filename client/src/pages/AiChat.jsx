@@ -17,12 +17,12 @@ const STARTERS = [
 function TypingIndicator() {
   return (
     <div className="flex justify-start">
-      <div className="flex items-center gap-1.5 px-4 py-3.5 rounded-2xl rounded-bl-sm" style={{ background: 'rgba(26,31,56,0.9)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="flex items-center gap-1.5 px-4 py-3.5 rounded-2xl rounded-bl-sm" style={{ background: 'var(--bg-surface-1)', border: '1px solid var(--border-base)' }}>
         {[0, 1, 2].map(i => (
           <motion.div
             key={i}
             className="w-1.5 h-1.5 rounded-full"
-            style={{ background: '#596080' }}
+            style={{ background: 'var(--text-muted)' }}
             animate={{ y: [0, -5, 0] }}
             transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.15 }}
           />
@@ -115,10 +115,10 @@ export default function AiChat() {
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="font-black text-lg leading-none" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>
+            <h1 className="font-black text-lg leading-none" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
               AI Companion
             </h1>
-            <p className="text-xs mt-0.5" style={{ color: '#596080' }}>Your calm, supportive wellness partner</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Your calm, supportive wellness partner</p>
           </div>
         </div>
         <button
@@ -131,15 +131,15 @@ export default function AiChat() {
           title={ttsEnabled ? 'Disable voice' : 'Enable voice'}
         >
           {ttsEnabled
-            ? <Volume2 className="w-4 h-4" style={{ color: '#06b6d4' }} />
-            : <VolumeX  className="w-4 h-4" style={{ color: '#596080' }} />}
+            ? <Volume2 className="w-4 h-4" style={{ color: 'var(--accent-secondary)' }} />
+            : <VolumeX  className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />}
         </button>
       </div>
 
       {/* Messages area */}
       <div
         className="flex-1 overflow-y-auto rounded-2xl mb-4 p-5"
-        style={{ background: 'rgba(13,16,37,0.6)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ background: 'var(--bg-surface-1)', border: '1px solid var(--border-base)', boxShadow: 'var(--shadow-sm)' }}
       >
         {loadingHistory ? (
           <div className="flex items-center justify-center h-full">
@@ -153,10 +153,10 @@ export default function AiChat() {
             >
               <MessageSquare className="w-8 h-8" style={{ color: '#a78bfa' }} />
             </div>
-            <h3 className="font-black text-lg mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>
+            <h3 className="font-black text-lg mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
               Start a conversation
             </h3>
-            <p className="text-sm mb-6" style={{ color: '#596080' }}>
+            <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
               I'm here to listen, support, and help you grow. ❤️
             </p>
             {/* Suggested starters */}
@@ -166,7 +166,7 @@ export default function AiChat() {
                   key={s}
                   onClick={() => sendMessage(s)}
                   className="px-3 py-2.5 rounded-xl text-xs text-left cursor-pointer border-none transition-all"
-                  style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)', color: '#a78bfa' }}
+                  style={{ background: 'var(--accent-p-glow)', border: '1px solid var(--accent-primary)', color: 'var(--accent-primary)', fontWeight: 600 }}
                 >
                   "{s}"
                 </button>
@@ -194,10 +194,10 @@ export default function AiChat() {
                   )}
                   <div style={{ maxWidth: '75%' }}>
                     <div
-                      className="px-4 py-3 rounded-2xl text-sm leading-relaxed"
+                      className="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm"
                       style={msg.role === 'user'
-                        ? { background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: '#fff', borderBottomRightRadius: '4px', boxShadow: '0 4px 20px rgba(124,58,237,0.3)' }
-                        : { background: 'rgba(26,31,56,0.9)', color: '#c4cbf0', border: '1px solid rgba(255,255,255,0.07)', borderBottomLeftRadius: '4px' }
+                        ? { background: 'var(--accent-primary)', color: '#fff', borderBottomRightRadius: '4px' }
+                        : { background: 'var(--bg-surface-2)', color: 'var(--text-secondary)', border: '1px solid var(--border-base)', borderBottomLeftRadius: '4px' }
                       }
                     >
                       {msg.content}
@@ -205,7 +205,7 @@ export default function AiChat() {
                     {msg.sentiment && msg.role === 'user' && (
                       <div className="flex items-center gap-1 mt-1 justify-end">
                         <SentimentIcon sentiment={msg.sentiment} />
-                        <span className="text-xs capitalize" style={{ color: '#373e60' }}>{msg.sentiment}</span>
+                        <span className="text-xs capitalize" style={{ color: 'var(--text-muted)' }}>{msg.sentiment}</span>
                       </div>
                     )}
                   </div>
@@ -221,7 +221,7 @@ export default function AiChat() {
       {/* Input bar */}
       <div
         className="shrink-0 flex items-end gap-2 p-3 rounded-2xl"
-        style={{ background: 'rgba(19,22,41,0.85)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}
+        style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-base)', boxShadow: 'var(--shadow-md)' }}
       >
         <button
           onClick={toggleListening}
@@ -244,7 +244,7 @@ export default function AiChat() {
           placeholder="Message your AI companion..."
           rows={1}
           className="flex-1 bg-transparent border-none outline-none resize-none text-sm py-2.5"
-          style={{ color: '#f0f2ff', minHeight: '40px', maxHeight: '120px', caretColor: '#7c3aed' }}
+          style={{ color: 'var(--text-primary)', minHeight: '40px', maxHeight: '120px', caretColor: 'var(--accent-primary)' }}
         />
 
         <motion.button

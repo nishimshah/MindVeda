@@ -19,9 +19,9 @@ const moodEmojis = [
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="px-3 py-2 rounded-xl text-sm" style={{ background: 'rgba(13,16,37,0.97)', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 8px 30px rgba(0,0,0,0.4)' }}>
-      <p style={{ color: '#9ba3cc', marginBottom: '2px' }}>{label}</p>
-      <p className="font-bold" style={{ color: '#a78bfa' }}>{payload[0].value}</p>
+    <div className="px-3 py-2 rounded-xl text-sm" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-base)', boxShadow: 'var(--shadow-lg)' }}>
+      <p style={{ color: 'var(--text-muted)', marginBottom: '2px' }}>{label}</p>
+      <p className="font-bold" style={{ color: 'var(--accent-primary)' }}>{payload[0].value}</p>
     </div>
   );
 };
@@ -104,7 +104,7 @@ export default function Progress() {
             <div className="text-3xl font-black mb-0.5" style={{ fontFamily: 'Outfit, sans-serif', color: s.color }}>
               {s.value}
             </div>
-            <div className="text-xs" style={{ color: '#596080' }}>{s.label}</div>
+            <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{s.label}</div>
           </motion.div>
         ))}
       </div>
@@ -119,8 +119,8 @@ export default function Progress() {
           className="glass-card p-6"
         >
           <div className="flex items-center gap-2 mb-6">
-            <BarChart3 className="w-4.5 h-4.5" style={{ color: '#7c3aed' }} />
-            <h3 className="font-bold text-base" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>
+            <BarChart3 className="w-4.5 h-4.5" style={{ color: 'var(--accent-primary)' }} />
+            <h3 className="font-bold text-base" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
               Weekly Activity
             </h3>
           </div>
@@ -133,15 +133,15 @@ export default function Progress() {
                     <stop offset="100%" stopColor="#6d28d9" stopOpacity={0.6} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="date" tick={{ fill: '#596080', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#596080', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-base)" />
+                <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="sessions" fill="url(#barGrad)" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-44 flex items-center justify-center text-sm" style={{ color: '#373e60' }}>
+            <div className="h-44 flex items-center justify-center text-sm" style={{ color: 'var(--text-muted)' }}>
               No activity yet — start training! 🏋️
             </div>
           )}
@@ -155,8 +155,8 @@ export default function Progress() {
           className="glass-card p-6"
         >
           <div className="flex items-center gap-2 mb-6">
-            <SmilePlus className="w-4.5 h-4.5" style={{ color: '#10b981' }} />
-            <h3 className="font-bold text-base" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>
+            <SmilePlus className="w-4.5 h-4.5" style={{ color: 'var(--accent-green)' }} />
+            <h3 className="font-bold text-base" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
               Mood Trend
             </h3>
           </div>
@@ -169,15 +169,15 @@ export default function Progress() {
                     <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="date" tick={{ fill: '#596080', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis domain={[1, 5]} ticks={[1,2,3,4,5]} tick={{ fill: '#596080', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-base)" />
+                <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis domain={[1, 5]} ticks={[1,2,3,4,5]} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} />
                 <Area type="monotone" dataKey="mood" stroke="#10b981" strokeWidth={2.5} fill="url(#moodGrad)" dot={{ fill: '#10b981', r: 3 }} />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-44 flex items-center justify-center text-sm" style={{ color: '#373e60' }}>
+            <div className="h-44 flex items-center justify-center text-sm" style={{ color: 'var(--text-muted)' }}>
               No mood data yet — log below!
             </div>
           )}
@@ -191,10 +191,10 @@ export default function Progress() {
         transition={{ delay: 0.35 }}
         className="glass-card p-7"
       >
-        <h3 className="font-black text-lg mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: '#f0f2ff' }}>
+        <h3 className="font-black text-lg mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
           How are you feeling right now?
         </h3>
-        <p className="text-sm mb-6" style={{ color: '#596080' }}>
+        <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
           Log your mood to track emotional patterns over time
         </p>
 
@@ -208,8 +208,8 @@ export default function Progress() {
                 whileTap={{ scale: 0.92 }}
                 className="flex flex-col items-center gap-1.5 p-4 rounded-2xl cursor-pointer border-2 transition-all bg-transparent"
                 style={{
-                  borderColor: sel ? m.color : 'rgba(255,255,255,0.07)',
-                  background:  sel ? `${m.color}12` : 'rgba(255,255,255,0.03)',
+                  borderColor: sel ? m.color : 'var(--border-base)',
+                  background:  sel ? `${m.color}12` : 'var(--bg-surface-1)',
                   minWidth: '72px',
                 }}
               >
@@ -220,7 +220,7 @@ export default function Progress() {
                 >
                   {m.emoji}
                 </motion.span>
-                <span className="text-xs font-medium" style={{ color: sel ? m.color : '#596080' }}>
+                <span className="text-xs font-medium" style={{ color: sel ? m.color : 'var(--text-muted)' }}>
                   {m.label}
                 </span>
               </motion.button>
