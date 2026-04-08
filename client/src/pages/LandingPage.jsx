@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Brain, MessageCircle, BarChart3, Wind, Sparkles, Shield, Users, Zap, ArrowRight, Star } from 'lucide-react';
+import { MessageCircle, BarChart3, Wind, Sparkles, Shield, Users, Zap, ArrowRight, Star } from 'lucide-react';
 import AnimatedBackground from '../components/AnimatedBackground';
+import Logo from '../components/Logo';
 
 const features = [
-  { icon: Brain,          title: 'Brain Training',   desc: 'Adaptive cognitive games that learn and scale with your progress.', color: '#7c3aed', glow: 'rgba(124,58,237,0.25)' },
+  { icon: Logo,           title: 'Brain Training',   desc: 'Adaptive cognitive games that learn and scale with your progress.', color: '#7c3aed', glow: 'rgba(124,58,237,0.25)' },
   { icon: MessageCircle,  title: 'AI Companion',     desc: 'A calm, empathetic AI trained to support your mental wellness.', color: '#06b6d4', glow: 'rgba(6,182,212,0.2)' },
   { icon: BarChart3,      title: 'Progress Insights',desc: 'Beautiful charts that show your cognitive journey over time.', color: '#10b981', glow: 'rgba(16,185,129,0.2)' },
   { icon: Wind,           title: 'Calm Zone',        desc: 'Breathe, meditate, and unwind with guided relaxation sessions.', color: '#f59e0b', glow: 'rgba(245,158,11,0.2)' },
@@ -40,7 +41,7 @@ export default function LandingPage() {
               className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm"
               style={{ background: 'var(--accent-primary)' }}
             >
-              <Brain className="w-5 h-5 text-white" />
+              <Logo className="w-5 h-5 text-white" color="#fff" />
             </div>
             <span className="font-bold text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
               MindVeda
@@ -294,7 +295,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center shadow-sm" style={{ background: 'var(--accent-primary)' }}>
-              <Brain className="w-4 h-4 text-white" />
+              <Logo className="w-4 h-4 text-white" color="#fff" />
             </div>
             <span className="font-semibold text-sm" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-muted)' }}>MindVeda</span>
           </div>

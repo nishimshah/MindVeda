@@ -2,15 +2,22 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useAccessibility } from '../contexts/AccessibilityContext';
 import { motion } from 'framer-motion';
-import { Save, Settings, Eye, Focus, Shield, Loader2, Flame, Star, Sun, Moon, Leaf } from 'lucide-react';
+import { Save, Settings, Eye, Focus, Shield, Loader2, Flame, Star, Sun, Moon, Leaf, Sparkles } from 'lucide-react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 import { useTheme } from '../contexts/ThemeContext';
 
 const themeCards = [
-  { value: 'light', label: 'Light Theme', desc: 'Minimal, clean Apple-style', icon: Sun,  color: '#7c3aed' },
-  { value: 'dark',  label: 'Dark Theme',  desc: 'Midnight therapeutic experience', icon: Moon, color: '#a78bfa' },
+  { value: 'light', label: 'Light Theme', desc: 'Minimal, clean Apple-style', icon: Sun,  color: 'var(--accent-primary)' },
+  { value: 'dark',  label: 'Dark Theme',  desc: 'Midnight therapeutic experience', icon: Moon, color: 'var(--accent-p-light)' },
   { value: 'calm',  label: 'Calm Mode',   desc: 'Low-brightness, anxiety-safe sage', icon: Leaf, color: '#10b981' },
+];
+
+const accessibilityModes = [
+  { value: 'adhd',     label: 'ADHD Mode',      desc: 'High-contrast & focus aids', icon: Focus,  color: '#f59e0b' },
+  { value: 'dyslexia', label: 'Dyslexia Mode',  desc: 'Specially designed fonts',   icon: Eye,    color: '#7c3aed' },
+  { value: 'autism',   label: 'Autism Mode',    desc: 'Structured, low-stimuli UI',   icon: Shield, color: '#06b6d4' },
+  { value: 'none',     label: 'Standard',       desc: 'Default browsing experience', icon: Sparkles, color: 'var(--text-muted)' },
 ];
 
 export default function Profile() {

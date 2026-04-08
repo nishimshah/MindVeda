@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
-import { Brain, Mail, Lock, Eye, EyeOff, User, Loader2, ArrowRight, Check } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, Loader2, ArrowRight, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AnimatedBackground from '../components/AnimatedBackground';
+import Logo from '../components/Logo';
 
 const brandPoints = [
   { icon: '🎯', text: 'Personalized to your goals' },
@@ -82,7 +83,7 @@ export default function Signup() {
       <div className="hidden lg:flex flex-col justify-between w-[48%] p-16 relative z-10">
         <Link to="/" className="flex items-center gap-3 no-underline group w-max">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-indigo-600 shadow-sm group-hover:scale-105 transition-transform duration-300">
-            <Brain className="w-6 h-6 text-white" />
+            <Logo className="w-6 h-6 text-white" color="#fff" />
           </div>
           <span className="font-heading font-black text-xl text-slate-800 dark:text-slate-100">
             MindVeda
@@ -131,7 +132,7 @@ export default function Signup() {
           {/* Mobile logo */}
           <div className="flex flex-col items-center gap-4 mb-10 lg:hidden text-center">
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-indigo-600 shadow-lg">
-              <Brain className="w-7 h-7 text-white" />
+              <Logo className="w-7 h-7 text-white" color="#fff" />
             </div>
             <div>
               <h3 className="font-heading font-black text-2xl tracking-tight" style={{ color: 'var(--text-primary)' }}>MindVeda</h3>

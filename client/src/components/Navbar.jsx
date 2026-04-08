@@ -1,9 +1,10 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, LogOut, Menu, X, ChevronDown } from 'lucide-react';
+import { LogOut, Menu, X, ChevronDown } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import ThemeToggle from './ThemeToggle';
+import Logo from './Logo';
 
 const navLinks = [
   { path: '/dashboard',  label: 'Home' },
@@ -62,7 +63,7 @@ export default function Navbar() {
                   background: 'var(--accent-primary)',
                 }}
               >
-                <Brain className="w-5 h-5 text-white" />
+                <Logo className="w-5 h-5 text-white" color="#fff" />
               </div>
               <span
                 className="font-heading font-bold text-lg hidden sm:block"
