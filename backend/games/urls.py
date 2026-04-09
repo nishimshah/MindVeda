@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import ProgressView
+from .views import ProgressView, StatsView
 
 urlpatterns = [
-    path('progress/', ProgressView.as_view(), name='progress'),
+    path('', ProgressView.as_view(), name='progress'),
+    path('stats/', StatsView.as_view(), name='stats'),
 ]

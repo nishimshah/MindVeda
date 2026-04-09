@@ -11,8 +11,14 @@ class MoodLog(models.Model):
         ordering = ['-created_at']
 
 class ChatMessage(models.Model):
+    ROLE_CHOICES = [
+        ('user', 'User'),
+        ('assistant', 'Assistant (AI)'),
+        ('clinical', 'Clinical (Therapy)'),
+    ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='chat_messages')
-    role = models.CharField(max_length=20) # user, assistant
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_messages', null=True, blank=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES) # user, assistant, clinical
     content = models.TextField()
     sentiment = models.CharField(max_length=20, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

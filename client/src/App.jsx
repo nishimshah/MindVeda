@@ -10,11 +10,15 @@ import Signup from './pages/Signup';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import BrainTraining from './pages/BrainTraining';
+import SupportChat from './pages/SupportChat';
 import AiChat from './pages/AiChat';
 import Progress from './pages/Progress';
 import CalmZone from './pages/CalmZone';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import MoodPage from './pages/MoodPage';
+import GoalsPage from './pages/GoalsPage';
+import AssessmentsPage from './pages/AssessmentsPage';
 
 import { useLocation } from 'react-router-dom';
 
@@ -33,11 +37,16 @@ function AppRoutes() {
         <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/train" element={<ProtectedRoute><BrainTraining /></ProtectedRoute>} />
-        <Route path="/chat" element={<ProtectedRoute><AiChat /></ProtectedRoute>} />
+        <Route path="/chat" element={<ProtectedRoute><SupportChat /></ProtectedRoute>} />
+        <Route path="/ai-chat" element={<ProtectedRoute><AiChat /></ProtectedRoute>} />
+        <Route path="/chat/therapist/:patientId" element={<ProtectedRoute><SupportChat /></ProtectedRoute>} />
         <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
         <Route path="/calm" element={<ProtectedRoute><CalmZone /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+        <Route path="/mood" element={<ProtectedRoute><MoodPage /></ProtectedRoute>} />
+        <Route path="/goals" element={<ProtectedRoute><GoalsPage /></ProtectedRoute>} />
+        <Route path="/assessments" element={<ProtectedRoute><AssessmentsPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
@@ -45,6 +54,7 @@ function AppRoutes() {
 }
 
 import { ThemeProvider } from './contexts/ThemeContext';
+import FloatingAiChat from './components/FloatingAiChat';
 
 export default function App() {
   return (
@@ -53,6 +63,7 @@ export default function App() {
         <AccessibilityProvider>
           <ThemeProvider>
             <AppRoutes />
+            <FloatingAiChat />
             <Toaster
               position="top-right"
               toastOptions={{

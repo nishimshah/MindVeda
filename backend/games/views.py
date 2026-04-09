@@ -11,3 +11,36 @@ class ProgressView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.db.models import Avg, Count
+from django.utils import timezone
+
+class StatsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        qs = Progress.objects.filter(user=user)
+        
+        overview = qs.aggregate(
+            total_sessions=Count('id'),
+            avg_score=Avg('score')
+        )
+        
+        # Simple weekly mock/calc for now
+        weekly = []
+        for i in range(7):
+            day = timezone.now() - timezone.timedelta(days=i)
+            day_qs = qs.filter(created_at__date=day.date())
+            weekly.append({
+                "date": day.date().isoformat(),
+                "sessions": day_qs.count(),
+                "avg_score": day_qs.aggregate(Avg('score'))['score__avg'] or 0
+            })
+            
+        return Response({
+            "overview": overview,
+            "weekly": weekly[::-1]
+        })

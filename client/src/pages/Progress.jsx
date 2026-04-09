@@ -38,14 +38,14 @@ export default function Progress() {
     Promise.all([fetchStats(), fetchMoods(), fetchStreak()]).finally(() => setLoading(false));
   }, []);
 
-  const fetchStats  = async () => { try { const { data } = await api.get('/progress/stats'); setStats(data); } catch {} };
-  const fetchMoods  = async () => { try { const { data } = await api.get('/mood');            setMoods(data); } catch {} };
-  const fetchStreak = async () => { try { const { data } = await api.get('/streak');          setStreak(data); } catch {} };
+  const fetchStats  = async () => { try { const { data } = await api.get('/progress/stats/'); setStats(data); } catch {} };
+  const fetchMoods  = async () => { try { const { data } = await api.get('/mood/');            setMoods(data); } catch {} };
+  const fetchStreak = async () => { try { const { data } = await api.get('/streak/');          setStreak(data); } catch {} };
 
   const logMood = async () => {
     if (!selectedMood) return;
     try {
-      await api.post('/mood', { mood_score: selectedMood, note: moodNote });
+      await api.post('/mood/', { mood_score: selectedMood, note: moodNote });
       toast.success('Mood logged! 🌱');
       setSelectedMood(null); setMoodNote('');
       fetchMoods();

@@ -31,96 +31,12 @@ const phaseColors = { idle: '#2d3352', inhale: '#7c3aed', hold: '#f59e0b', exhal
 const phaseLabels = { idle: 'Ready', inhale: 'Inhale', hold: 'Hold', exhale: 'Exhale' };
 
 export default function CalmZone() {
-  const [breathPattern, setBreathPattern]   = useState(breathingPatterns[0]);
-  const [breathPhase, setBreathPhase]       = useState('idle');
-  const [breathActive, setBreathActive]     = useState(false);
-  const [breathTimer, setBreathTimer]       = useState(0);
-  const breathRef                           = useRef(null);
-
-  const [meditating, setMeditating]         = useState(false);
-  const [medTime, setMedTime]               = useState(0);
-  const [currentStep, setCurrentStep]       = useState(0);
-  const medRef                              = useRef(null);
-
-  const [soundPlaying, setSoundPlaying]     = useState(null);
+  const [activeMode, setActiveMode] = useState('menu'); // 'menu', 'focus', 'sleep'
+  const [breathActive, setBreathActive] = useState(false);
+  const [breathTimer, setBreathTimer] = useState(4);
+  const [breathPhase, setBreathPhase] = useState('inhale');
+  const [soundPlaying, setSoundPlaying] = useState(null);
   const audioRef = useRef(null);
-
-  const speak = (text) => {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    
-    // Try to find a calming voice
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(v => 
-      v.name.includes('Female') || v.name.includes('Google US English') || v.name.includes('Samantha')
-    );
-    if (preferredVoice) utterance.voice = preferredVoice;
-    
-    utterance.rate = 0.8; // Slower for meditation
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-    window.speechSynthesis.speak(utterance);
-  };
-
-  // Breathing engine ... unchanged ...
-  useEffect(() => {
-    if (!breathActive) {
-      clearInterval(breathRef.current);
-      setBreathPhase('idle'); setBreathTimer(0); return;
-    }
-    let timer = 0;
-    const { inhale, hold, exhale } = breathPattern;
-    const total = inhale + hold + exhale;
-    setBreathPhase('inhale'); setBreathTimer(inhale);
-    breathRef.current = setInterval(() => {
-      timer++;
-      const pos = timer % total;
-      if (pos < inhale)         { setBreathPhase('inhale'); setBreathTimer(inhale - pos); }
-      else if (pos < inhale + hold) { setBreathPhase('hold');   setBreathTimer(inhale + hold - pos); }
-      else                      { setBreathPhase('exhale'); setBreathTimer(total - pos); }
-    }, 1000);
-    return () => clearInterval(breathRef.current);
-  }, [breathActive, breathPattern]);
-
-  // Meditation timer + Voice
-  useEffect(() => {
-    if (!meditating) { 
-      clearInterval(medRef.current); 
-      window.speechSynthesis.cancel();
-      return; 
-    }
-    
-    // Small delay to ensure voices are loaded on some browsers
-    const startMeditation = () => {
-      speak(meditationSteps[0].text);
-      medRef.current = setInterval(() => {
-        setMedTime(t => {
-          const n = t + 1;
-          const idx = meditationSteps.findLastIndex(s => s.time <= n);
-          if (idx >= 0 && idx !== currentStep) {
-            setCurrentStep(idx);
-            speak(meditationSteps[idx].text);
-          }
-          if (n >= 90) { setMeditating(false); return 0; }
-          return n;
-        });
-      }, 1000);
-    };
-
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.onvoiceschanged = () => {
-        startMeditation();
-        window.speechSynthesis.onvoiceschanged = null;
-      };
-    } else {
-      startMeditation();
-    }
-
-    return () => {
-      clearInterval(medRef.current);
-      window.speechSynthesis.cancel();
-    };
-  }, [meditating]);
 
   // Sound Engine
   useEffect(() => {
@@ -128,255 +44,160 @@ export default function CalmZone() {
       audioRef.current.pause();
       audioRef.current = null;
     }
-
     if (soundPlaying) {
       const soundUrls = {
-        Rain:   'https://assets.mixkit.co/active_storage/sfx/2458/2458-preview.mp3',
-        Forest: 'https://assets.mixkit.co/active_storage/sfx/2387/2387-preview.mp3',
-        Ocean:  'https://assets.mixkit.co/active_storage/sfx/1202/1202-preview.mp3',
-        Night:  'https://assets.mixkit.co/active_storage/sfx/1110/1110-preview.mp3',
+        'Rain': 'https://assets.mixkit.co/active_storage/sfx/2458/2458-preview.mp3',
+        'Forest': 'https://assets.mixkit.co/active_storage/sfx/2387/2387-preview.mp3',
+        'Ocean': 'https://assets.mixkit.co/active_storage/sfx/1202/1202-preview.mp3',
+        'Night': 'https://assets.mixkit.co/active_storage/sfx/1110/1110-preview.mp3',
       };
       audioRef.current = new Audio(soundUrls[soundPlaying]);
       audioRef.current.loop = true;
-      audioRef.current.play().catch(e => console.log('Audio play failed:', e));
+      audioRef.current.play().catch(() => {});
     }
-
-    return () => {
-      if (audioRef.current) audioRef.current.pause();
-    };
+    return () => { if (audioRef.current) audioRef.current.pause(); };
   }, [soundPlaying]);
 
-  const scale = breathPhase === 'inhale' || breathPhase === 'hold' ? 1.55 : 1;
-  const activeColor = phaseColors[breathPhase];
+  // Breathing Loop
+  useEffect(() => {
+    if (!breathActive) return;
+    const timer = setInterval(() => {
+      setBreathTimer(t => {
+        if (t <= 1) {
+          if (breathPhase === 'inhale') { setBreathPhase('hold'); return 7; }
+          if (breathPhase === 'hold') { setBreathPhase('exhale'); return 8; }
+          if (breathPhase === 'exhale') { setBreathPhase('inhale'); return 4; }
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [breathActive, breathPhase]);
 
-  return (
-    <div className="page-container">
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="section-title">Calm Zone</h1>
-        <p className="section-subtitle">Breathe, relax, and find your peace</p>
-      </motion.div>
+  const renderMenu = () => (
+    <div className="max-w-4xl mx-auto py-12">
+      <div className="mb-12">
+        <h1 className="section-title">Pause & Recharge</h1>
+        <p className="text-secondary text-lg">Taking a break is a productive act.</p>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-
-        {/* ── BREATHING EXERCISE ─────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, x: -16 }}
-          animate={{ opacity: 1, x:  0 }}
-          transition={{ delay: 0.05 }}
-          className="glass-card p-7"
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <motion.button
+          whileHover={{ y: -5 }}
+          onClick={() => setActiveMode('focus')}
+          className="glass-card flex flex-col items-center text-center p-12 border-none bg-[#A7C7E720]"
         >
-          <div className="flex items-center gap-2 mb-6">
-            <Wind className="w-5 h-5" style={{ color: 'var(--accent-primary)' }} />
-            <h3 className="font-black text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
-              Breathing Exercise
-            </h3>
+          <div className="w-20 h-20 rounded-[32px] bg-[#A7C7E7] flex items-center justify-center mb-6 shadow-lg shadow-[#A7C7E730]">
+            <Timer className="w-10 h-10 text-slate-800" />
           </div>
+          <h2 className="text-2xl font-bold mb-2">Focus Mode</h2>
+          <p className="text-secondary">A gentle space for concentration and breath.</p>
+        </motion.button>
 
-          {/* Pattern selector */}
-          <div className="flex gap-2 mb-8 flex-wrap">
-            {breathingPatterns.map(p => (
-              <button
-                key={p.name}
-                onClick={() => { setBreathPattern(p); setBreathActive(false); }}
-                className="px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer border-none transition-all"
-                style={{
-                  background: breathPattern.name === p.name ? `${p.color}20` : 'var(--bg-surface-1)',
-                  color:      breathPattern.name === p.name ? p.color : 'var(--text-muted)',
-                  border:     `1px solid ${breathPattern.name === p.name ? `${p.color}40` : 'var(--border-base)'}`,
-                }}
-              >
-                {p.name}
-              </button>
-            ))}
-          </div>
-
-          {/* Breathing circle */}
-          <div className="flex items-center justify-center py-6">
-            <div className="relative flex items-center justify-center">
-              {/* Outer glow ring */}
-              <motion.div
-                animate={{ scale: breathActive ? (scale * 1.1) : 1, opacity: breathActive ? 0.5 : 0.15 }}
-                transition={{ duration: breathPhase === 'inhale' ? breathPattern.inhale : breathPhase === 'exhale' ? breathPattern.exhale : 0.4, ease: 'easeInOut' }}
-                className="absolute rounded-full"
-                style={{
-                  width: '240px', height: '240px',
-                  background: `radial-gradient(circle, ${activeColor}30, transparent 70%)`,
-                  boxShadow:  `0 0 80px ${activeColor}40`,
-                }}
-              />
-              {/* Main circle */}
-              <motion.div
-                animate={{ scale }}
-                transition={{ duration: breathPhase === 'inhale' ? breathPattern.inhale : breathPhase === 'exhale' ? breathPattern.exhale : 0.4, ease: 'easeInOut' }}
-                className="w-40 h-40 rounded-full flex items-center justify-center relative"
-                style={{
-                  background: `radial-gradient(circle, ${activeColor}25, ${activeColor}08)`,
-                  border:     `2px solid ${activeColor}60`,
-                  boxShadow:  breathActive ? `0 0 40px ${activeColor}40, inset 0 0 30px ${activeColor}15` : 'none',
-                }}
-              >
-                <div className="text-center">
-                  <div className="text-4xl font-black mb-1" style={{ fontFamily: 'Outfit, sans-serif', color: activeColor }}>
-                    {breathActive ? breathTimer : '—'}
-                  </div>
-                  <div className="text-sm font-semibold capitalize" style={{ color: activeColor }}>
-                    {phaseLabels[breathPhase]}
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-
-          <div className="text-center text-xs mb-6" style={{ color: 'var(--text-muted)' }}>
-            {breathingPatterns.find(p => p.name === breathPattern.name)?.label}
-            {' — '}↑{breathPattern.inhale}s hold {breathPattern.hold}s ↓{breathPattern.exhale}s
-          </div>
-
-          <div className="flex justify-center gap-3">
-            <button
-              onClick={() => setBreathActive(!breathActive)}
-              className="btn-primary !px-8"
-              style={{ background: breathActive ? 'linear-gradient(135deg, #f59e0b, #d97706)' : undefined }}
-            >
-              {breathActive ? <><Pause className="w-4 h-4" /> Pause</> : <><Play className="w-4 h-4" /> Start</>}
-            </button>
-            <button
-              onClick={() => setBreathActive(false)}
-              className="w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer border-none transition-all"
-              style={{ background: 'var(--bg-surface-1)', border: '1px solid var(--border-base)', color: 'var(--text-muted)' }}
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-          </div>
-        </motion.div>
-
-        {/* ── GUIDED MEDITATION ──────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, x: 16 }}
-          animate={{ opacity: 1, x:  0 }}
-          transition={{ delay: 0.1 }}
-          className="glass-card p-7"
+        <motion.button
+          whileHover={{ y: -5 }}
+          onClick={() => setActiveMode('sleep')}
+          className="glass-card flex flex-col items-center text-center p-12 border-none bg-[#D6CDEA20]"
         >
-          <div className="flex items-center gap-2 mb-6">
-            <Leaf className="w-5 h-5" style={{ color: 'var(--accent-green)' }} />
-            <h3 className="font-black text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
-              Guided Meditation
-            </h3>
+          <div className="w-20 h-20 rounded-[32px] bg-[#D6CDEA] flex items-center justify-center mb-6 shadow-lg shadow-[#D6CDEA30]">
+            <Wind className="w-10 h-10 text-slate-800" />
           </div>
+          <h2 className="text-2xl font-bold mb-2">Sleep Mode</h2>
+          <p className="text-secondary">Drift away with soothing ambient sounds.</p>
+        </motion.button>
+      </div>
+    </div>
+  );
 
-          <div className="flex items-center justify-center py-8 min-h-56">
-            <div className="text-center max-w-sm w-full">
-              {meditating ? (
-                <>
-                  {/* Progress ring */}
-                    <div className="relative w-20 h-20 mx-auto mb-6">
-                      <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-                        <circle cx="40" cy="40" r="34" fill="none" stroke="var(--border-base)" strokeWidth="5" />
-                        <circle
-                          cx="40" cy="40" r="34" fill="none"
-                          stroke="var(--accent-green)" strokeWidth="5" strokeLinecap="round"
-                        strokeDasharray={`${2 * Math.PI * 34}`}
-                        strokeDashoffset={`${2 * Math.PI * 34 * (1 - medTime / 90)}`}
-                        style={{ transition: 'stroke-dashoffset 1s linear' }}
-                      />
-                    </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-sm font-bold" style={{ color: 'var(--accent-green)', fontFamily: 'Outfit, sans-serif' }}>
-                          {Math.floor(medTime / 60)}:{String(medTime % 60).padStart(2, '0')}
-                        </span>
-                      </div>
-                  </div>
-                  <AnimatePresence mode="wait">
-                    <motion.p
-                      key={currentStep}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.5 }}
-                      className="text-lg leading-relaxed mb-6"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
-                      {meditationSteps[currentStep]?.text}
-                    </motion.p>
-                  </AnimatePresence>
-                </>
-              ) : (
-                <div>
-                  <div className="w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 float-animation" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' }}>
-                    <Leaf className="w-8 h-8" style={{ color: '#10b981' }} />
-                  </div>
-                  <h4 className="font-black text-lg mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
-                    90-Second Session
-                  </h4>
-                  <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Find a quiet spot.</p>
-                  <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>Let me guide you through a calming reset.</p>
-                </div>
-              )}
+  const renderFocus = () => (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-50 bg-[#F5F1E8] dark:bg-[#1C1C1E] flex flex-col items-center justify-center p-6">
+      <button onClick={() => {setActiveMode('menu'); setBreathActive(false);}} className="absolute top-10 right-10 text-muted hover:text-primary transition-colors">
+        <RotateCcw className="w-8 h-8" />
+      </button>
 
-              <button
-                onClick={() => { setMeditating(!meditating); setMedTime(0); setCurrentStep(0); }}
-                className="btn-primary !px-8"
-                style={{
-                  background: meditating
-                    ? 'linear-gradient(135deg, #ef4444, #dc2626)'
-                    : 'linear-gradient(135deg, #10b981, #059669)',
-                  boxShadow: meditating ? '0 4px 20px rgba(239,68,68,0.3)' : '0 4px 20px rgba(16,185,129,0.3)',
-                }}
-              >
-                {meditating ? <><Pause className="w-4 h-4" /> Stop</> : <><Play className="w-4 h-4" /> Begin</>}
-              </button>
-            </div>
+      <div className="text-center mb-20">
+        <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>{breathActive ? breathPhase.toUpperCase() : 'Breathe with me'}</h2>
+        <p className="text-secondary">4-7-8 Breathing Pattern</p>
+      </div>
+
+      <div className="relative flex items-center justify-center mb-24">
+        <motion.div
+          animate={{ 
+            scale: breathActive ? (breathPhase === 'inhale' ? 1.4 : breathPhase === 'hold' ? 1.4 : 1) : 1,
+            opacity: breathActive ? 0.6 : 0.2
+          }}
+          transition={{ duration: breathPhase === 'inhale' ? 4 : breathPhase === 'exhale' ? 8 : 1, ease: "easeInOut" }}
+          className="w-64 h-64 rounded-full bg-[#A7C7E7] absolute blur-3xl"
+        />
+        <motion.div
+          animate={{ scale: breathActive ? (breathPhase === 'inhale' ? 1.4 : breathPhase === 'hold' ? 1.4 : 1) : 1 }}
+          transition={{ duration: breathPhase === 'inhale' ? 4 : breathPhase === 'exhale' ? 8 : 1, ease: "easeInOut" }}
+          className="w-48 h-48 rounded-full border-4 border-[#A7C7E7] flex items-center justify-center bg-white dark:bg-zinc-800 shadow-2xl z-10"
+        >
+          <div className="text-center">
+            <div className="text-6xl font-black mb-1" style={{ color: 'var(--text-primary)' }}>{breathTimer}</div>
+            <div className="text-[10px] uppercase font-black tracking-widest text-[#A7C7E7]">Seconds</div>
           </div>
         </motion.div>
       </div>
 
-      {/* ── AMBIENT SOUNDS ─────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y:  0 }}
-        transition={{ delay: 0.18 }}
-        className="glass-card p-7"
+      <button
+        onClick={() => setBreathActive(!breathActive)}
+        className="btn-primary !px-16 !py-5 text-lg shadow-xl"
+        style={{ background: 'var(--accent-blue)' }}
       >
-        <div className="flex items-center gap-2 mb-6">
-          <Volume2 className="w-5 h-5" style={{ color: 'var(--accent-secondary)' }} />
-          <h3 className="font-black text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
-            Ambient Sounds
-          </h3>
+        {breathActive ? 'Pause Session' : 'Start Focus Session'}
+      </button>
+      
+      <p className="mt-8 text-muted text-sm italic">Focus mode minimizes distractions for total clarity</p>
+    </motion.div>
+  );
+
+  const renderSleep = () => (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-50 bg-[#1C1C1E] flex flex-col items-center justify-center p-6 text-white">
+      <button onClick={() => {setActiveMode('menu'); setSoundPlaying(null);}} className="absolute top-10 right-10 opacity-40 hover:opacity-100 transition-opacity">
+        <RotateCcw className="w-8 h-8" />
+      </button>
+
+      <div className="text-center mb-16">
+        <h2 className="text-4xl font-black mb-4">Dim the nights</h2>
+        <p className="text-zinc-400">Select a sound to drift away...</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-6 mb-20 w-full max-w-sm">
+        {['Rain', 'Forest', 'Ocean', 'Night'].map(s => (
+          <button
+            key={s}
+            onClick={() => setSoundPlaying(soundPlaying === s ? null : s)}
+            className={`p-10 rounded-[32px] transition-all duration-500 border-none flex flex-col items-center gap-4 ${
+              soundPlaying === s ? 'bg-[#A7C7E730] scale-105 ring-2 ring-[#A7C7E720]' : 'bg-zinc-800 hover:bg-zinc-700'
+            }`}
+          >
+            <div className="text-4xl">{s === 'Rain' ? '🌧️' : s === 'Forest' ? '🌲' : s === 'Ocean' ? '🌊' : '🌙'}</div>
+            <span className={`text-xs font-black uppercase tracking-widest ${soundPlaying === s ? 'text-[#A7C7E7]' : 'text-zinc-500'}`}>{s}</span>
+          </button>
+        ))}
+      </div>
+
+      {soundPlaying && (
+        <div className="flex flex-col items-center">
+          <div className="w-1 h-1 rounded-full bg-[#A7C7E7] mb-8 breathing-animation" style={{ boxShadow: '0 0 40px 10px #A7C7E7' }} />
+          <button 
+            onClick={() => setSoundPlaying(null)}
+            className="px-10 py-3 rounded-full border border-zinc-700 text-zinc-400 text-sm hover:text-[#A7C7E7] hover:border-[#A7C7E7] transition-all"
+          >
+            Turn Off Sound
+          </button>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {sounds.map(s => {
-            const playing = soundPlaying === s.name;
-            return (
-              <motion.button
-                key={s.name}
-                onClick={() => setSoundPlaying(playing ? null : s.name)}
-                whileTap={{ scale: 0.96 }}
-                className="p-5 rounded-2xl border-2 text-center cursor-pointer transition-all bg-transparent relative overflow-hidden"
-                style={{
-                  borderColor: playing ? s.color : 'var(--border-base)',
-                  background:  playing ? `${s.color}12` : 'var(--bg-surface-1)',
-                }}
-              >
-                {playing && (
-                  <motion.div
-                    className="absolute inset-0 rounded-2xl"
-                    animate={{ opacity: [0.1, 0.25, 0.1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    style={{ background: `radial-gradient(circle, ${s.color}30, transparent)` }}
-                  />
-                )}
-                <div className="text-4xl mb-2">{s.emoji}</div>
-                <div className="font-bold text-sm mb-1" style={{ fontFamily: 'Outfit, sans-serif', color: playing ? s.color : 'var(--text-primary)' }}>
-                  {s.name}
-                </div>
-                <div className="text-xs" style={{ color: playing ? s.color : 'var(--text-muted)' }}>
-                  {playing ? '🔊 Playing' : 'Tap to play'}
-                </div>
-              </motion.button>
-            );
-          })}
-        </div>
-      </motion.div>
+      )}
+    </motion.div>
+  );
+
+  return (
+    <div className="smooth-transition">
+      {activeMode === 'menu' && renderMenu()}
+      {activeMode === 'focus' && renderFocus()}
+      {activeMode === 'sleep' && renderSleep()}
     </div>
   );
 }

@@ -54,7 +54,7 @@ export default function AiChat() {
 
   const fetchHistory = async () => {
     try {
-      const { data } = await api.get('/chat/history');
+      const { data } = await api.get('/chat/history/');
       setMessages(data.map(m => ({ role: m.role, content: m.content, sentiment: m.sentiment })));
     } catch { /**/ }
     finally { setLoadingHistory(false); }
@@ -91,7 +91,7 @@ export default function AiChat() {
     setInput('');
     setLoading(true);
     try {
-      const { data } = await api.post('/chat', { message: msg });
+      const { data } = await api.post('/chat/', { message: msg });
       setMessages(prev => [...prev, { role: 'assistant', content: data.response, sentiment: data.sentiment }]);
       speak(data.response);
     } catch { toast.error('Failed to get response. Please try again.'); }

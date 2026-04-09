@@ -6,13 +6,6 @@ import { useState, useEffect } from 'react';
 import ThemeToggle from './ThemeToggle';
 import Logo from './Logo';
 
-const navLinks = [
-  { path: '/dashboard',  label: 'Home' },
-  { path: '/train',      label: 'Training' },
-  { path: '/chat',       label: 'AI Chat' },
-  { path: '/progress',   label: 'Progress' },
-  { path: '/calm',       label: 'Calm Zone' },
-];
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -21,6 +14,45 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const getNavLinks = () => {
+    if (!user) return [];
+    
+    const baseLinks = [{ path: '/dashboard', label: 'Dashboard' }];
+    
+    if (user.role === 'therapist') {
+      return [
+        ...baseLinks,
+        { path: '/chat', label: 'Messages' },
+        { path: '/profile', label: 'Practice' },
+      ];
+    }
+    
+
+    // Individual / Default
+    const individualLinks = [
+      ...baseLinks,
+      { path: '/mood', label: 'Mood' },
+      { path: '/goals', label: 'Goals' },
+      { path: '/train', label: 'Games' },
+    ];
+
+    // Show counsellor if specifically requested OR hybrid + connected
+    const showCounsellor = (user.session_preference === 'with_therapist') || 
+                          (user.session_preference === 'hybrid' && user.is_linked);
+
+    if (showCounsellor) {
+      individualLinks.push({ path: '/chat', label: 'Counsellor' });
+    }
+
+    individualLinks.push(
+      { path: '/assessments', label: 'Clinical' },
+      { path: '/calm', label: 'Calm' }
+    );
+    return individualLinks;
+  };
+
+  const navLinks = getNavLinks();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);

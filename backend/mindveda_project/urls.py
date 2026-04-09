@@ -1,39 +1,41 @@
-"""
-URL configuration for mindveda_project project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.http import JsonResponse
 from django.utils import timezone
+
 
 def health_check(request):
     return JsonResponse({"status": "ok", "timestamp": timezone.now().isoformat()})
 
+
 urlpatterns = [
+    # Health
     path('api/health/', health_check),
+
+    # Django Admin
     path('admin/', admin.site.urls),
+
+    # ─── Auth (signup, login, logout, me, select-role) ───────────────────
     path('api/auth/', include('accounts.urls')),
-    path('api/admin/', include('accounts.urls')), # This handles /api/admin/users and /api/admin/stats
-    path('api/therapy/', include('therapy.urls')),
-    path('api/chat/', include('therapy.urls')),
-    path('api/mood/', include('therapy.urls')),
+
+    # ─── Role-based APIs (user, parent, therapist, admin, notifications) ─
+    path('api/', include('accounts.urls')),
+
+    # ─── Assessment ──────────────────────────────────────────────────────
+    path('api/assessment/', include('assessments.urls')),
+
+    # ─── Therapy (chat + mood) ───────────────────────────────────────────
+    path('api/', include('therapy.urls')),
+
+    # ─── Games + Progress ────────────────────────────────────────────────
     path('api/games/', include('games.urls')),
     path('api/progress/', include('games.urls')),
+
+    # ─── Analytics + Streaks + Plan ──────────────────────────────────────
     path('api/analytics/', include('analytics.urls')),
     path('api/plan/', include('analytics.urls')),
     path('api/streak/', include('analytics.urls')),
+
+    # ─── Recommendations (ML) ────────────────────────────────────────────
     path('api/recommendations/', include('recommendations.urls')),
 ]

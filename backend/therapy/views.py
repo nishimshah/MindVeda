@@ -23,8 +23,11 @@ class ChatView(APIView):
             sentiment=sentiment
         )
 
-        # Get history (last 10 messages)
-        history = ChatMessage.objects.filter(user=request.user).order_by('-created_at')[:10]
+        # Get history (last 10 messages for AI context)
+        history = ChatMessage.objects.filter(
+            user=request.user,
+            role__in=['user', 'assistant']
+        ).order_by('-created_at')[:10]
         history = reversed(history)
 
         # Get AI response
@@ -47,7 +50,10 @@ class ChatHistoryView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return ChatMessage.objects.filter(user=self.request.user).order_by('created_at')[:100]
+        return ChatMessage.objects.filter(
+            user=self.request.user,
+            role__in=['user', 'assistant']
+        ).order_by('created_at')[:100]
 
 class MoodLogView(generics.ListCreateAPIView):
     serializer_class = MoodLogSerializer

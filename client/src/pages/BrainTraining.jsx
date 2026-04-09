@@ -340,9 +340,9 @@ function ReactionTest({ onBack }) {
 
 /* ─────────────────────── MAIN PAGE ────────────────────────── */
 const games = [
-  { id: 'memory',   icon: Grid3X3, title: 'Memory Match',       desc: 'Find all matching card pairs', color: '#7c3aed', glow: 'rgba(124,58,237,0.25)', tag: 'Memory' },
-  { id: 'pattern',  icon: Eye,     title: 'Pattern Recognition', desc: 'Watch & repeat the light sequence', color: '#06b6d4', glow: 'rgba(6,182,212,0.2)', tag: 'Attention' },
-  { id: 'reaction', icon: Zap,     title: 'Reaction Test',       desc: 'How fast can you click?', color: '#f59e0b', glow: 'rgba(245,158,11,0.2)', tag: 'Speed' },
+  { id: 'memory',   icon: Grid3X3, title: 'Memory Match',       desc: 'A gentle exercise for your recollection.', color: 'var(--accent-lavender)', tag: 'Memory' },
+  { id: 'pattern',  icon: Eye,     title: 'Quiet Observation', desc: 'Notice the subtle changes in light.', color: 'var(--accent-blue)', tag: 'Attention' },
+  { id: 'reaction', icon: Zap,     title: 'Reaction Spark',       desc: 'A playful test of your reflexes.', color: 'var(--accent-green)', tag: 'Speed' },
 ];
 
 export default function BrainTraining() {
@@ -358,15 +358,15 @@ export default function BrainTraining() {
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container max-w-5xl mx-auto">
       <AnimatePresence mode="wait">
         {activeGame ? (
           <motion.div
             key="game"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y:  0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="glass-card p-8 max-w-2xl mx-auto"
+            exit={{ opacity: 0 }}
+            className="glass-card !p-12 max-w-2xl mx-auto border-none shadow-xl"
           >
             {renderGame()}
           </motion.div>
@@ -377,52 +377,38 @@ export default function BrainTraining() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <div className="mb-10">
-              <h1 className="section-title">Brain Training</h1>
-              <p className="section-subtitle">Choose a game to exercise your mind and track your progress</p>
+            <div className="mb-12">
+              <h1 className="section-title">Mindful Play</h1>
+              <p className="text-secondary text-lg">Strengthen your focus at your own pace. No timers, no pressure.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {games.map((game, i) => (
                 <motion.button
                   key={game.id}
-                  initial={{ opacity: 0, y: 22 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y:  0 }}
-                  transition={{ delay: i * 0.08 }}
+                  transition={{ delay: i * 0.1 }}
                   onClick={() => setActiveGame(game.id)}
-                  whileHover={{ y: -5 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="glass-card p-7 text-left cursor-pointer group border-none relative overflow-hidden"
-                  style={{ transition: 'box-shadow 0.3s, border-color 0.3s, transform 0.3s' }}
+                  whileHover={{ y: -8 }}
+                  className="glass-card !p-10 text-center flex flex-col items-center group border-none bg-surface-1 shadow-none"
                 >
-                  {/* Top glow accent line */}
-                  <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${game.color}60, transparent)` }} />
-
                   <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
-                    style={{ background: `${game.color}18`, border: `1px solid ${game.color}25`, boxShadow: `0 4px 20px ${game.glow}` }}
+                    className="w-20 h-20 rounded-[32px] flex items-center justify-center mb-8 transition-all duration-500 group-hover:shadow-2xl"
+                    style={{ background: game.color, boxShadow: `0 15px 35px -10px ${game.color}60` }}
                   >
-                    <game.icon className="w-7 h-7" style={{ color: game.color }} />
+                    <game.icon className="w-10 h-10 text-slate-800" />
                   </div>
 
-                  <div
-                    className="badge text-xs mb-4"
-                    style={{ background: `${game.color}12`, border: `1px solid ${game.color}30`, color: game.color }}
-                  >
-                    {game.tag}
-                  </div>
-
-                  <h3 className="font-black text-xl mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
+                  <h3 className="text-2xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>
                     {game.title}
                   </h3>
-                  <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                  <p className="text-sm text-secondary leading-relaxed">
                     {game.desc}
                   </p>
-
-                  {/* Play arrow */}
-                  <div className="mt-6 flex items-center gap-1.5" style={{ color: game.color }}>
-                    <span className="text-xs font-semibold">Play now</span>
-                    <motion.span className="text-base" animate={{ x: [0, 3, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>→</motion.span>
+                  
+                  <div className="mt-8 text-[10px] font-black uppercase tracking-[0.25em] text-muted opacity-40 group-hover:opacity-100 transition-opacity">
+                    TAP TO START
                   </div>
                 </motion.button>
               ))}

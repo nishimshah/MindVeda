@@ -1,27 +1,39 @@
 import axios from 'axios';
 
+/**
+ * api.js — Axios instance for secure cookie-based auth.
+ */
+
+// Helper to read Django's CSRF cookie
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
 const api = axios.create({
   baseURL: '/api',
+  withCredentials: true, // MANDATORY: Sends cookies with every request
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Add token to requests
+// 1. CSRF INTERCEPTOR: Inject token for POST, PUT, PATCH, DELETE
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('mindveda_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const csrfToken = getCookie('csrftoken');
+  if (csrfToken && ['post', 'put', 'patch', 'delete'].includes(config.method)) {
+    config.headers['X-CSRFToken'] = csrfToken;
   }
+  // Note: No more Authorization Bearer header needed! Cookies handle it now.
   return config;
 });
 
-// Handle 401 errors
+// 2. AUTH ERROR INTERCEPTOR: Handle session expiration
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('mindveda_token');
-      localStorage.removeItem('mindveda_user');
-      if (window.location.pathname !== '/login') {
+      // If unauthorized and NOT on auth pages, redirect to login
+      const isAuthPage = ['/login', '/signup', '/'].includes(window.location.pathname);
+      if (!isAuthPage) {
         window.location.href = '/login';
       }
     }
