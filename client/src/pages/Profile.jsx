@@ -66,17 +66,11 @@ export default function Profile() {
             </h2>
             <p className="text-sm truncate mt-0.5 text-secondary">{user?.email}</p>
             <div className="flex items-center gap-4 mt-3">
-              <div className="flex items-center gap-1.5 text-amber-500">
-                <Flame className="w-3.5 h-3.5" />
-                <span className="text-xs font-semibold">
-                  {profileData?.streak?.current_streak || 0} day streak
-                </span>
-              </div>
               {user?.goals?.length > 0 && (
                 <div className="flex items-center gap-1.5 text-muted">
                   <Star className="w-3.5 h-3.5" />
-                  <span className="text-xs">
-                    {user.goals.slice(0, 2).join(', ')}
+                  <span className="text-xs font-black uppercase tracking-widest">
+                    {user.goals.slice(0, 2).join(' • ')}
                   </span>
                 </div>
               )}

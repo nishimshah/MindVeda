@@ -67,3 +67,51 @@ class Assessment(models.Model):
 
     def __str__(self):
         return f"{self.user} — {self.condition} ({self.severity})"
+
+class Question(models.Model):
+    TYPE_CHOICES = [
+        ('onboarding', 'General Onboarding'),
+        ('adhd', 'ADHD Specific'),
+        ('anxiety', 'Anxiety Specific'),
+        ('autism', 'Autism Specific'),
+        ('checkin', 'Daily Check-in'),
+    ]
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    text = models.TextField()
+    order = models.IntegerField(default=0)
+    category = models.CharField(max_length=50, blank=True) # focus, sleep, routine, etc.
+
+    class Meta:
+        ordering = ['type', 'order']
+
+    def __str__(self):
+        return f"({self.type}) {self.text[:50]}"
+
+class Option(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='options')
+    text = models.CharField(max_length=200)
+    value = models.IntegerField(default=0) # weight for scoring
+    next_question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True, blank=True, related_name='previous_options')
+
+    def __str__(self):
+        return f"{self.question.id} -> {self.text}"
+
+class UserResponse(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    answer_text = models.CharField(max_length=200)
+    answer_value = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class UserCognitiveProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cognitive_profile')
+    condition = models.CharField(max_length=20, default='general') # ADHD, anxiety, autism, general
+    focus_score = models.IntegerField(default=50)
+    stress_score = models.IntegerField(default=50)
+    memory_score = models.IntegerField(default=50)
+    sensory_preference = models.CharField(max_length=50, blank=True)
+    stimulation_preference = models.CharField(max_length=50, blank=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Profile: {self.user.email} ({self.condition})"

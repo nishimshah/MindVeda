@@ -30,7 +30,8 @@ function TypingIndicator() {
 export default function SupportChat() {
   const { user } = useAuth();
   const { patientId } = useParams();
-  const [activeMode, setActiveMode] = useState(patientId ? 'therapist' : 'ai');
+  const initialMode = patientId || user?.is_linked ? 'therapist' : 'ai';
+  const [activeMode, setActiveMode] = useState(initialMode);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,6 +44,7 @@ export default function SupportChat() {
   const [connectingTherapist, setConnectingTherapist] = useState(false);
   
   const messagesEndRef = useRef(null);
+  const wsRef = useRef(null);
 
   useEffect(() => {
     if (patientId) {
@@ -56,15 +58,20 @@ export default function SupportChat() {
     }
   }, [patientId, user]);
 
-  useEffect(() => {
+    useEffect(() => {
     if (activeMode === 'ai') {
       fetchAiHistory();
       setConnectionStatus('connected');
     } else if (therapist) {
       initWebSocket();
+    } else if (activeMode === 'therapist' && user?.role === 'individual' && !user?.is_linked) {
+      setLoadingHistory(false);
     }
     return () => {
-      if (ws) ws.close();
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
     };
   }, [activeMode, therapist]);
 
@@ -82,13 +89,12 @@ export default function SupportChat() {
   };
 
   const fetchPatientsList = async () => {
+    setLoadingHistory(true);
     try {
       const { data } = await api.get('/therapist/dashboard/');
       setPatients(data.linked_patients || []);
-      setLoadingHistory(false);
-    } catch {
-      setLoadingHistory(false);
-    }
+    } catch {}
+    finally { setLoadingHistory(false); }
   };
 
   const fetchTherapistInfo = async () => {
@@ -130,11 +136,16 @@ export default function SupportChat() {
     if (!therapist) return;
     setConnectionStatus('connecting');
     setLoadingHistory(true);
+    
+    if (wsRef.current) {
+      wsRef.current.close();
+    }
+
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const socket = new WebSocket(`${protocol}//${window.location.host}/ws/chat/${therapist.id}/`);
+    wsRef.current = socket;
 
     socket.onopen = () => {
-      setLoadingHistory(false);
       setConnectionStatus('connected');
     };
     socket.onmessage = (e) => {
@@ -144,7 +155,8 @@ export default function SupportChat() {
           role: m.sender_id === user?.id ? 'user' : 'assistant',
           content: m.message,
         })));
-      } else if (data.type === 'chat_message') {
+        setLoadingHistory(false);
+      } else if (data.type === 'message') {
         setMessages(prev => [...prev, {
           role: data.sender_id === user?.id ? 'user' : 'assistant',
           content: data.message,
@@ -157,7 +169,7 @@ export default function SupportChat() {
     };
     socket.onclose = () => {
       setLoadingHistory(false);
-      if (connectionStatus !== 'error') {
+      if (connectionStatus !== 'error' && wsRef.current === socket) {
         setConnectionStatus('error');
       }
     };
@@ -178,8 +190,8 @@ export default function SupportChat() {
       } catch { toast.error('Failed to get response'); }
       finally { setLoading(false); }
     } else {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ message: msg }));
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ message: msg }));
       } else {
         toast.error('Connection lost. Please refresh.');
       }

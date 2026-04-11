@@ -5,7 +5,6 @@ const ThemeContext = createContext(null);
 export const THEMES = {
   light: 'light',
   dark:  'dark',
-  calm:  'calm',
 };
 
 export function ThemeProvider({ children }) {
@@ -20,11 +19,7 @@ export function ThemeProvider({ children }) {
   }, [theme]);
 
   const cycleTheme = () => {
-    setTheme(t => {
-      if (t === 'dark')  return 'light';
-      if (t === 'light') return 'calm';
-      return 'dark';
-    });
+    setTheme(t => (t === 'dark' ? 'light' : 'dark'));
   };
 
   return (

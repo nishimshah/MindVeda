@@ -52,7 +52,7 @@ export default function MoodPage() {
     <div className="page-container max-w-4xl mx-auto">
       <div className="mb-12">
         <h1 className="section-title">Daily Reflection</h1>
-        <p className="text-secondary text-lg">How is your heart today?</p>
+        <p className="text-[var(--text-secondary)] text-lg">How is your heart today?</p>
       </div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card mb-12">
@@ -88,7 +88,7 @@ export default function MoodPage() {
 
         <div className="max-w-md mx-auto">
           <textarea
-            className="input-field mb-6 bg-page border-none placeholder:text-muted"
+            className="input-field mb-6 bg-[var(--bg-page)] border-none placeholder:text-[var(--text-muted)]"
             placeholder="Anything you'd like to note down? (It's okay to skip this)"
             rows="2"
             value={newMood.note}
@@ -106,39 +106,39 @@ export default function MoodPage() {
 
       <div className="space-y-6">
         <div className="flex items-center gap-3 px-2">
-          <Calendar size={18} className="text-muted" />
-          <h3 className="text-xs font-black uppercase tracking-[0.25em] text-muted">Your Journey</h3>
+          <Calendar size={18} className="text-[var(--text-muted)]" />
+          <h3 className="text-xs font-black uppercase tracking-[0.25em] text-[var(--text-muted)]">Your Journey</h3>
         </div>
         
         {loading ? (
           <div className="flex justify-center py-10"><div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin opacity-20" /></div>
         ) : moods.length === 0 ? (
-          <div className="text-center py-20 glass-card bg-surface-1 border-dashed">
-            <p className="text-secondary opacity-60">Your journey will be logged here, one step at a time.</p>
+          <div className="text-center py-20 glass-card bg-[var(--bg-surface-1)] border-dashed">
+            <p className="text-[var(--text-secondary)] opacity-60">Your journey will be logged here, one step at a time.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {moods.map((m) => {
               const config = getMoodConfig(m.mood_score);
               return (
-                <motion.div 
-                  key={m.id}
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  className="glass-card !p-6 flex items-center gap-5 bg-surface-1 border-none shadow-none"
-                >
+                  <motion.div 
+                    key={m.id}
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    className="glass-card !p-6 flex items-center gap-5 bg-[var(--bg-surface-1)] border-none shadow-none"
+                  >
                   <div className="w-14 h-14 rounded-3xl flex items-center justify-center text-3xl" style={{ background: config.bg }}>
                     {config.emoji}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>{config.label}</span>
-                      <span className="text-[10px] uppercase font-black tracking-widest text-muted">
+                      <span className="text-[10px] uppercase font-black tracking-widest text-[var(--text-muted)]">
                         {new Date(m.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </span>
                     </div>
-                    {m.note && <p className="text-xs text-secondary leading-relaxed line-clamp-2">"{m.note}"</p>}
+                    {m.note && <p className="text-xs text-[var(--text-secondary)] leading-relaxed line-clamp-2">"{m.note}"</p>}
                   </div>
                 </motion.div>
               );

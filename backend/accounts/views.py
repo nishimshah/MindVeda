@@ -518,6 +518,13 @@ class PatientDetailView(APIView):
             assessments = Assessment.objects.filter(user=patient).order_by('-created_at')[:10]
             streak, _ = Streak.objects.get_or_create(user=patient)
             tasks = TherapistTask.objects.filter(patient=patient).order_by('-created_at')
+            
+            # New onboarding/profile data
+            from assessments.models import UserCognitiveProfile, UserResponse
+            from games.models import GameSession
+            cognitive_profile, _ = UserCognitiveProfile.objects.get_or_create(user=patient)
+            game_sessions = GameSession.objects.filter(user=patient).order_by('-created_at')[:20]
+            responses = UserResponse.objects.filter(user=patient).select_related('question')
         except Exception as e:
             print(f"Error fetching detail data: {e}")
             return Response({'error': f'Clinical data error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -531,7 +538,28 @@ class PatientDetailView(APIView):
                 'goals': getattr(patient, 'goals', []) or [],
                 'special_needs': getattr(patient, 'special_needs', []) or [],
                 'onboarding_complete': patient.onboarding_complete,
+                'primary_condition': getattr(patient.user_profile, 'primary_condition', 'Stable'),
             },
+            'cognitive_profile': {
+                'condition': cognitive_profile.condition,
+                'focus_score': cognitive_profile.focus_score,
+                'stress_score': cognitive_profile.stress_score,
+                'memory_score': cognitive_profile.memory_score,
+                'sensory_preference': cognitive_profile.sensory_preference,
+                'stimulation_preference': cognitive_profile.stimulation_preference,
+            },
+            'questionnaire_summary': [
+                {'category': r.question.category, 'answer': r.answer_text}
+                for r in responses[:15]
+            ],
+            'game_activity': [
+                {
+                    'game': s.game.name,
+                    'score': s.score,
+                    'improvement': s.improvement,
+                    'date': s.created_at
+                } for s in game_sessions
+            ],
             'streak': {
                 'current': getattr(streak, 'current_streak', 0),
                 'longest': getattr(streak, 'longest_streak', 0),
@@ -551,7 +579,8 @@ class PatientDetailView(APIView):
                     'description': t.description,
                     'due_date': t.due_date,
                     'status': t.status,
-                    'created_at': t.created_at
+                    'created_at': t.created_at,
+                    'completed_at': t.completed_at
                 } for t in tasks
             ],
             'notes': [
@@ -568,6 +597,29 @@ class PatientDetailView(APIView):
         })
 
 
+
+
+class UpdatePatientConditionView(APIView):
+    """POST /api/therapist/update-condition/"""
+    permission_classes = [IsTherapist]
+
+    def post(self, request):
+        patient_id = request.data.get('patient_id')
+        condition = request.data.get('condition')
+        if not patient_id or not condition:
+            return Response({"error": "patient_id and condition required."}, status=400)
+        
+        link = TherapistPatientLink.objects.filter(
+            therapist=request.user, user_id=patient_id, status='active'
+        ).first()
+        if not link:
+            return Response({"error": "Patient not linked to you."}, status=403)
+            
+        profile = link.user.user_profile
+        profile.primary_condition = condition
+        profile.save(update_fields=['primary_condition', 'updated_at'])
+        
+        return Response({"message": f"Patient condition updated to {condition}."})
 
 
 # ─────────────────────────────────────────

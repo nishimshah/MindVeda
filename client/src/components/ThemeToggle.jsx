@@ -3,9 +3,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { Sun, Moon } from 'lucide-react';
 
 const THEME_CONFIG = {
-  light: { label: 'Light', icon: Sun,  emoji: null, offset: 4 },
-  dark:  { label: 'Dark',  icon: Moon, emoji: null, offset: 28 },
-  calm:  { label: 'Calm',  icon: null, emoji: '🍃',  offset: 52 },
+  light: { label: 'Light', icon: Sun, offset: 4 },
+  dark:  { label: 'Dark',  icon: Moon, offset: 32 },
 };
 
 export default function ThemeToggle() {

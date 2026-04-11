@@ -2,11 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import { 
-  Sparkles, X, Send, Loader2, MessageCircle, 
+  Shield, X, Send, Loader2, MessageCircle, 
   ChevronDown, Brain, ListChecks, ArrowRight
 } from 'lucide-react';
 import api from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import Logo from './Logo';
 
 export default function FloatingAiChat() {
   const { user } = useAuth();
@@ -88,13 +89,11 @@ export default function FloatingAiChat() {
             }}
           >
             {/* Header */}
-            <div className="p-8 pb-6 flex items-center justify-between bg-page">
+            <div className="p-8 pb-6 flex items-center justify-between" style={{ background: 'var(--bg-surface)' }}>
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-3xl bg-[#A7C7E740] flex items-center justify-center">
-                  <Sparkles className="w-7 h-7" style={{ color: 'var(--accent-blue)' }} />
-                </div>
+                <Logo className="w-14 h-14" />
                 <div>
-                  <h3 className="font-bold text-lg leading-tight" style={{ color: 'var(--text-primary)' }}>Companion</h3>
+                  <h3 className="font-bold text-lg leading-tight" style={{ color: 'var(--text-primary)' }}>Assistant</h3>
                   <div className="flex items-center gap-1.5 mt-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#C1DDB3]" />
                     <span className="text-[10px] text-muted font-black uppercase tracking-widest">Listening</span>
@@ -122,7 +121,7 @@ export default function FloatingAiChat() {
                     className={`max-w-[90%] p-4 rounded-3xl text-[13px] leading-relaxed shadow-sm ${
                       m.role === 'user' 
                         ? 'bg-[#A7C7E7] text-slate-900 rounded-br-none' 
-                        : 'bg-[#C1DDB325] text-slate-800 rounded-bl-none border-none'
+                        : 'bg-[var(--bg-surface-1)] text-[var(--text-primary)] rounded-bl-none border border-[var(--border-base)]'
                     }`}
                   >
                     {m.content}
@@ -147,7 +146,7 @@ export default function FloatingAiChat() {
                   <button
                     key={i}
                     onClick={() => handleSend(s.text)}
-                    className="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all cursor-pointer border-none bg-page hover:bg-surface-1 text-secondary shadow-sm"
+                    className="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all cursor-pointer border border-[var(--border-base)] bg-[var(--bg-page)] hover:bg-[var(--bg-surface-1)] text-[var(--text-secondary)] shadow-sm"
                   >
                     {s.text}
                   </button>
@@ -164,14 +163,14 @@ export default function FloatingAiChat() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                   placeholder="Share what's on your mind..."
-                  className="w-full bg-page border-none rounded-2xl py-4 px-6 pr-14 text-sm outline-none focus:ring-2 ring-[#A7C7E740] transition-all shadow-inner"
+                  className="w-full bg-[var(--bg-page)] border border-[var(--border-base)] rounded-2xl py-4 px-6 pr-14 text-sm outline-none focus:ring-2 ring-[var(--accent-green)]/30 transition-all shadow-inner"
                   style={{ color: 'var(--text-primary)' }}
                 />
                 <button 
                   onClick={() => handleSend()}
                   disabled={!input.trim() || loading}
                   className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-2xl flex items-center justify-center transition-all border-none cursor-pointer shadow-lg"
-                  style={{ background: 'var(--accent-blue)', color: '#fff' }}
+                  style={{ background: 'var(--accent-green)', color: '#fff' }}
                 >
                   <Send className="w-4 h-4" />
                 </button>
@@ -182,23 +181,24 @@ export default function FloatingAiChat() {
       </AnimatePresence>
 
       <motion.button
-        whileHover={{ scale: 1.05 }}
+        whileHover={{ scale: 1.05, y: -2 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 rounded-[24px] shadow-xl flex items-center justify-center relative border-none cursor-pointer"
+        className="w-16 h-16 rounded-[22px] shadow-2xl flex items-center justify-center relative border-none cursor-pointer group overflow-hidden"
         style={{ 
-          background: 'var(--accent-blue)',
-          boxShadow: '0 15px 35px -5px rgba(167,199,231,0.5)'
+          background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(251,191,36,0.2)'
         }}
       >
+        <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         <AnimatePresence mode="wait">
           {isOpen ? (
-            <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
-              <X className="w-8 h-8 text-white" />
+            <motion.div key="close" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }}>
+              <X className="w-7 h-7 text-white" />
             </motion.div>
           ) : (
-            <motion.div key="sparkle" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
-              <Sparkles className="w-8 h-8 text-white" />
+            <motion.div key="shield" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }}>
+              <Shield className="w-7 h-7 text-amber-400" />
             </motion.div>
           )}
         </AnimatePresence>

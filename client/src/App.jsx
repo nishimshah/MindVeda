@@ -19,6 +19,7 @@ import Admin from './pages/Admin';
 import MoodPage from './pages/MoodPage';
 import GoalsPage from './pages/GoalsPage';
 import AssessmentsPage from './pages/AssessmentsPage';
+import QuestionnaireFlow from './pages/QuestionnaireFlow';
 
 import { useLocation } from 'react-router-dom';
 
@@ -47,6 +48,7 @@ function AppRoutes() {
         <Route path="/mood" element={<ProtectedRoute><MoodPage /></ProtectedRoute>} />
         <Route path="/goals" element={<ProtectedRoute><GoalsPage /></ProtectedRoute>} />
         <Route path="/assessments" element={<ProtectedRoute><AssessmentsPage /></ProtectedRoute>} />
+        <Route path="/questionnaire" element={<ProtectedRoute><QuestionnaireFlow /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

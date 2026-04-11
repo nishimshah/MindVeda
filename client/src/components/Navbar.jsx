@@ -87,22 +87,11 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-5 sm:px-8">
           <div className="flex items-center justify-between h-[62px]">
 
-            {/* ── Logo ── */}
             <Link to="/dashboard" className="flex items-center gap-2.5 no-underline group">
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center relative shadow-sm"
-                style={{
-                  background: 'var(--accent-primary)',
-                }}
-              >
-                <Logo className="w-5 h-5 text-white" color="#fff" />
-              </div>
+              <Logo className="w-14 h-14" />
               <span
-                className="font-heading font-bold text-lg hidden sm:block"
-                style={{
-                  fontFamily: 'Outfit, sans-serif',
-                  color: 'var(--text-primary)',
-                }}
+                className="font-serif font-black text-xl hidden sm:block"
+                style={{ color: 'var(--text-primary)' }}
               >
                 MindVeda
               </span>

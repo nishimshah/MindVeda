@@ -7,10 +7,11 @@ import {
   Flame, Sparkles, ChevronRight, Clock, Users,
   Stethoscope, Plus, AlertCircle, Activity, Heart,
   X, Calendar, TrendingUp, Shield, Target, Loader2,
-  MessageSquare, Check,
+  MessageSquare, Check, Star, ArrowRight,
 } from 'lucide-react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
+import DailyCheckInModal from '../components/DailyCheckInModal';
 
 function getTimeGreeting() {
   const h = new Date().getHours();
@@ -40,7 +41,9 @@ function PatientDetailModal({ patient, onClose }) {
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showAssignTask, setShowAssignTask] = useState(false);
+  const [showNoteForm, setShowNoteForm] = useState(false);
   const [taskForm, setTaskForm] = useState({ title: '', description: '', due_date: null });
+  const [noteForm, setNoteForm] = useState({ title: '', content: '', session_date: new Date().toISOString().split('T')[0] });
 
   const loadDetail = () => {
     setLoading(true);
@@ -48,6 +51,17 @@ function PatientDetailModal({ patient, onClose }) {
       .then(r => setDetail(r.data))
       .catch(() => toast.error('Could not load patient details'))
       .finally(() => setLoading(false));
+  };
+
+  const handleSaveNote = async () => {
+    if (!noteForm.title || !noteForm.content) return;
+    try {
+      await api.post(`/therapist/notes/${patient.patient_id}/`, noteForm);
+      toast.success('Clinical note saved.');
+      setShowNoteForm(false);
+      setNoteForm({ title: '', content: '', session_date: new Date().toISOString().split('T')[0] });
+      loadDetail();
+    } catch { toast.error('Failed to save note.'); }
   };
 
   useEffect(() => {
@@ -116,84 +130,228 @@ function PatientDetailModal({ patient, onClose }) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
               
               {/* Left Column: Metrics & Clinical Data */}
-              <div className="lg:col-span-2 space-y-10">
-                <Link 
-                  to={`/chat/therapist/${patient.patient_id}`}
-                  className="w-full py-5 rounded-[24px] bg-primary text-slate-800 font-bold text-lg flex items-center justify-center gap-3 no-underline shadow-xl shadow-primary/10 hover:shadow-2xl transition-all"
-                >
-                  <MessageSquare size={24} /> Secure Message Session
-                </Link>
+              <div className="lg:col-span-2 space-y-8">
+                <div className="flex gap-4">
+                  <Link 
+                    to={`/chat/therapist/${patient.patient_id}`}
+                    className="flex-1 py-4 rounded-[20px] bg-primary text-slate-800 font-bold text-base flex items-center justify-center gap-2 no-underline shadow-lg hover:shadow-primary/20 transition-all border-none"
+                  >
+                    <MessageSquare size={20} /> Secure Session
+                  </Link>
+                  <div className="flex-1 p-1 rounded-[20px] bg-page border border-border-base flex items-center px-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted mr-3">Mode</p>
+                    <select 
+                      className="bg-transparent border-none font-bold text-sm text-primary focus:ring-0 cursor-pointer flex-1 outline-none"
+                      value={detail?.patient?.primary_condition || 'general'}
+                      onChange={async (e) => {
+                        try {
+                          await api.post('/therapist/update-condition/', { 
+                            patient_id: patient.patient_id, 
+                            condition: e.target.value 
+                          });
+                          toast.success('Condition updated');
+                          loadDetail();
+                        } catch { toast.error('Update failed'); }
+                      }}
+                    >
+                      <option value="general">General</option>
+                      <option value="adhd">ADHD</option>
+                      <option value="anxiety">Anxiety</option>
+                      <option value="autism">Autism</option>
+                      <option value="depression">Depression</option>
+                      <option value="dyslexia">Dyslexia</option>
+                    </select>
+                  </div>
+                </div>
 
-                <div className="grid grid-cols-3 gap-5">
+                <div className="grid grid-cols-3 gap-4">
                   {[
                     { label: 'Condition', value: detail?.patient?.primary_condition || 'Stable', color: 'var(--accent-blue)' },
-                    { label: 'Activity Streak', value: `${detail?.streak?.current || 0} days`, color: 'var(--accent-green)' },
-                    { label: 'Active Goals', value: (detail?.patient?.goals || []).length, color: 'var(--accent-peach)' },
+                    { label: 'Focus Score', value: `${Math.round(detail?.cognitive_profile?.focus_score || 0)}%`, color: 'var(--accent-lavender)' },
+                    { label: 'Stress Level', value: `${Math.round(detail?.cognitive_profile?.stress_score || 0)}%`, color: 'var(--accent-peach)' },
                   ].map(item => (
-                    <div key={item.label} className="p-6 rounded-[24px] bg-page border border-border-base">
-                      <div className="text-[10px] font-black uppercase tracking-widest text-muted mb-2">{item.label}</div>
-                      <div className="font-black text-xl text-primary">{item.value}</div>
+                    <div key={item.label} className="p-5 rounded-[20px] bg-page border border-border-base shadow-sm text-center">
+                      <div className="text-[9px] font-black uppercase tracking-widest text-muted mb-1.5">{item.label}</div>
+                      <div className="font-black text-lg text-primary">{item.value}</div>
                     </div>
                   ))}
                 </div>
 
-                {/* Mood Chart Placeholder / List */}
+                {/* Patient Journaling — RECENT HISTORY */}
                 <div>
-                  <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted mb-6">Longitudinal Mood Trends</h4>
-                  {detail?.mood_logs?.length === 0 ? (
-                    <div className="p-8 rounded-[32px] bg-page border border-dashed text-center italic text-sm text-muted">No entries recorded yet</div>
-                  ) : (
-                    <div className="space-y-3">
-                      {detail?.mood_logs?.slice(0, 5).map((m, i) => (
-                        <div key={i} className="flex items-center gap-5 p-5 rounded-[24px] bg-surface border border-border-base">
-                          <div className="w-12 h-12 rounded-[20px] flex items-center justify-center font-black text-xl"
-                            style={{ background: `${moodColor(m.score)}20`, color: moodColor(m.score) }}>
-                            {m.score}
+                   <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted mb-4">Patient Diary History</h4>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                      {detail.mood_logs?.length === 0 ? (
+                        <div className="col-span-2 p-8 rounded-[24px] bg-page border border-dashed text-center text-xs text-muted">No journal entries found.</div>
+                      ) : (
+                        detail.mood_logs.map((log, i) => (
+                          <div key={i} className="p-4 rounded-[20px] bg-page border border-border-base group">
+                            <div className="flex justify-between items-center mb-2">
+                               <span className="badge badge-primary !text-[8px] !px-2 !py-0.5">Mood: {log.score}/5</span>
+                               <span className="text-[9px] font-bold text-muted">{new Date(log.date).toLocaleDateString()}</span>
+                            </div>
+                            <p className="text-xs text-secondary leading-relaxed line-clamp-3 italic">"{log.note}"</p>
                           </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-semibold text-primary">{m.note || 'Observation with no notes'}</p>
-                            <p className="text-[10px] font-bold text-muted mt-1 uppercase tracking-wider">
-                              {new Date(m.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
-                            </p>
-                          </div>
+                        ))
+                      )}
+                   </div>
+                </div>
+
+                {/* Session Notes Section */}
+                <div>
+                   <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted">Therapist Clinical Notes</h4>
+                      <button 
+                        onClick={() => setShowNoteForm(!showNoteForm)}
+                        className="text-[10px] font-black underline uppercase tracking-widest text-primary hover:text-primary-hover border-none bg-transparent cursor-pointer"
+                      >
+                        {showNoteForm ? 'Cancel' : 'Add Note'}
+                      </button>
+                   </div>
+
+                   {showNoteForm && (
+                     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="p-5 rounded-[24px] bg-page border border-primary/20 mb-6 space-y-4 shadow-xl">
+                        <input 
+                          type="text" 
+                          placeholder="Note Title (e.g. Session Review)" 
+                          className="input-field !py-3 text-sm !bg-surface"
+                          value={noteForm.title}
+                          onChange={e => setNoteForm({...noteForm, title: e.target.value})}
+                        />
+                        <textarea 
+                          placeholder="Confidential observations..." 
+                          className="input-field !py-3 text-sm min-h-[100px] resize-none !bg-surface"
+                          value={noteForm.content}
+                          onChange={e => setNoteForm({...noteForm, content: e.target.value})}
+                        />
+                        <div className="flex justify-between items-center">
+                           <input 
+                            type="date" 
+                            className="bg-transparent text-xs font-bold text-muted border-none p-0 outline-none"
+                            value={noteForm.session_date}
+                            onChange={e => setNoteForm({...noteForm, session_date: e.target.value})}
+                           />
+                           <button 
+                            onClick={handleSaveNote}
+                            className="btn-primary !py-2 !px-6 text-[10px] font-black uppercase tracking-widest"
+                           >
+                            Save Note
+                           </button>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                     </motion.div>
+                   )}
+
+                   <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                      {detail.notes?.length === 0 ? (
+                        <div className="p-8 rounded-[24px] bg-page border border-dashed text-center text-xs text-muted">No clinical notes entries.</div>
+                      ) : (
+                        detail.notes.map((n, i) => (
+                          <div key={i} className="p-5 rounded-[24px] bg-page border border-border-base hover:border-primary/20 transition-all">
+                            <div className="flex justify-between mb-2">
+                              <h5 className="font-bold text-sm text-primary">{n.title}</h5>
+                              <span className="text-[10px] font-bold text-muted">{new Date(n.session_date).toLocaleDateString()}</span>
+                            </div>
+                            <p className="text-xs text-secondary leading-relaxed">{n.content}</p>
+                          </div>
+                        ))
+                      )}
+                   </div>
+                </div>
+
+                {/* Game Performance */}
+                <div>
+                   <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted mb-4 text-center">Sync Progress: Game Activity</h4>
+                   {!detail?.game_activity || detail.game_activity.length === 0 ? (
+                     <div className="p-8 rounded-[24px] bg-page border border-dashed text-center italic text-xs text-muted">Waiting for game data sync...</div>
+                   ) : (
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {detail.game_activity.map((game, i) => (
+                          <div key={i} className="p-4 rounded-[20px] bg-page border border-border-base flex items-center justify-between">
+                             <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center font-black text-xs text-primary">{game.game[0]}</div>
+                                <div>
+                                  <p className="text-xs font-bold text-primary">{game.game}</p>
+                                  <p className="text-[9px] text-muted uppercase tracking-widest font-black">Score: {game.score}</p>
+                                </div>
+                             </div>
+                             <div className="text-[9px] font-bold text-muted text-right">
+                                {new Date(game.date).toLocaleDateString()}
+                             </div>
+                          </div>
+                        ))}
+                     </div>
+                   )}
                 </div>
               </div>
 
               {/* Right Column: Actions & Tasks */}
               <div className="space-y-10">
-                <div className="glass-card !bg-page !p-8 !border-none">
-                  <div className="flex items-center justify-between mb-6">
+                <div className="glass-card !bg-page !p-8 !border-none !shadow-none">
+                  <div className="flex items-center justify-between mb-8">
                     <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted">Active Directives</h4>
                     <button
-                      onClick={() => setShowAssignTask(true)}
-                      className="p-2 rounded-xl bg-primary text-slate-800 hover:scale-105 transition-transform"
+                      onClick={() => setShowAssignTask(!showAssignTask)}
+                      className={`p-2 rounded-xl transition-all ${showAssignTask ? 'bg-red-500 text-white' : 'bg-primary text-slate-800'}`}
                     >
-                      <Plus className="w-4 h-4" />
+                      {showAssignTask ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                     </button>
                   </div>
 
+                  {showAssignTask && (
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="p-6 rounded-[24px] bg-surface border border-primary/20 mb-8 space-y-4 shadow-xl">
+                       <h5 className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">New Task</h5>
+                       <input 
+                         type="text" 
+                         placeholder="Directive Title..." 
+                         className="input-field !py-3 !bg-page text-sm"
+                         value={taskForm.title}
+                         onChange={e => setTaskForm({...taskForm, title: e.target.value})}
+                       />
+                       <textarea 
+                         placeholder="Description..." 
+                         className="input-field !py-3 !bg-page text-sm min-h-[80px] resize-none"
+                         value={taskForm.description}
+                         onChange={e => setTaskForm({...taskForm, description: e.target.value})}
+                       />
+                       <input 
+                         type="date" 
+                         className="input-field !py-3 !bg-page text-xs font-bold"
+                         value={taskForm.due_date}
+                         onChange={e => setTaskForm({...taskForm, due_date: e.target.value})}
+                       />
+                       <button 
+                         onClick={handleAssignTask}
+                         className="btn-primary w-full !py-3 text-[10px] font-black uppercase tracking-widest"
+                       >
+                         Allot Directive
+                       </button>
+                    </motion.div>
+                  )}
+
                   <div className="space-y-3">
                     {detail.tasks?.length === 0 ? (
-                      <p className="text-xs text-muted italic text-center py-4">No active directives</p>
+                      <p className="text-xs text-muted italic text-center py-4">No active directives allot one above.</p>
                     ) : (
-                      detail.tasks.slice(0, 4).map((t, i) => (
-                        <div key={i} className="p-4 rounded-[20px] bg-surface border border-border-base">
-                          <div className="text-xs font-bold text-primary mb-1">{t.title}</div>
-                          <div className="text-[10px] font-black uppercase tracking-widest text-muted">{t.status}</div>
+                      detail.tasks.map((t, i) => (
+                        <div key={i} className="p-5 rounded-[24px] bg-surface border border-border-base">
+                          <div className="flex justify-between items-center mb-1">
+                             <div className="text-xs font-bold text-primary">{t.title}</div>
+                             <span className={`text-[8px] px-2 py-0.5 rounded-full font-black uppercase ${t.status === 'completed' ? 'bg-green-500/10 text-green-600' : 'bg-yellow-500/10 text-yellow-600'}`}>{t.status}</span>
+                          </div>
+                          <p className="text-[10px] text-muted line-clamp-1">{t.description}</p>
                         </div>
                       ))
                     )}
                   </div>
                 </div>
 
-                <div className="p-8 border-t border-border-base">
-                  <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted mb-4 text-center">Security Policy</h4>
-                  <p className="text-[10px] text-muted text-center leading-relaxed">
-                    This portal is HIPAA compliant. All session notes are end-to-end encrypted. Use the private notes feature for confidential observations.
+                <div className="p-8 border-t border-border-base text-center">
+                  <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted mb-4 italic">Security Standard</h4>
+                  <div className="flex justify-center mb-4">
+                     <Shield className="text-primary w-10 h-10 opacity-20" />
+                  </div>
+                  <p className="text-[9px] text-muted leading-relaxed uppercase font-black tracking-widest opacity-60">
+                    MindVeda Clinical Portal<br/>v2.0 HIPAA Compliant
                   </p>
                 </div>
               </div>
@@ -368,6 +526,7 @@ function IndividualDashboard({ user }) {
   const [tasks, setTasks] = useState([]);
   const [inviteCode, setInviteCode] = useState('');
   const [connecting, setConnecting] = useState(false);
+  const [recommendedGames, setRecommendedGames] = useState([]);
   const { updateUser } = useAuth();
   const { text: timeText, emoji: timeEmoji } = getTimeGreeting();
   const planRouteMap = { training: '/train', chat: '/chat', calm: '/calm', mood: '/progress' };
@@ -391,6 +550,11 @@ function IndividualDashboard({ user }) {
         }
       })
       .catch(() => {});
+
+    // Fetch recommended games
+    api.get('/games/recommended/')
+      .then(r => setRecommendedGames(Array.isArray(r.data) ? r.data : []))
+      .catch(() => {});
   }, [user?.role]);
 
   const connectTherapist = async () => {
@@ -413,153 +577,208 @@ function IndividualDashboard({ user }) {
 
   return (
     <div className="page-container">
-      {/* Hero */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="mb-10">
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-muted)' }}>{timeEmoji} {timeText}</p>
-            <h1 className="text-4xl md:text-5xl font-black leading-tight"
-              style={{ fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.025em', color: 'var(--text-primary)' }}>
-              {user?.name?.split(' ')[0]}, let's grow.
-            </h1>
-            <p className="mt-2 text-base" style={{ color: 'var(--text-secondary)' }}>What would you like to work on today?</p>
+      <DailyCheckInModal />
+      {/* ── TOP SECTION: GREETING & MOOD ────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          className="lg:col-span-2"
+        >
+          <div className="flex items-center gap-2 mb-2 opacity-60">
+            <span className="text-lg">{timeEmoji}</span>
+            <span className="text-sm font-medium uppercase tracking-widest">{timeText}</span>
           </div>
-          <motion.div initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15, type: 'spring', stiffness: 300 }}
-            className="glass-card px-5 py-4 flex items-center gap-3 shrink-0">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid var(--accent-amber)' }}>
-              <Flame className="w-5 h-5" style={{ color: 'var(--accent-amber)' }} />
+          <h1 className="text-5xl md:text-7xl font-serif font-black leading-tight mb-4">
+            {user?.name?.split(' ')[0]}, <br />
+            <span className="italic font-normal opacity-60">let's grow today.</span>
+          </h1>
+          <p className="text-lg opacity-60 font-light max-w-lg">
+            A gentle space to sharpen your mind and restore your emotional balance.
+          </p>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }} 
+          animate={{ opacity: 1, scale: 1 }} 
+          transition={{ delay: 0.1 }}
+          className="glass-card flex flex-col justify-center"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-full bg-accent-green/10 flex items-center justify-center">
+              <Activity className="w-5 h-5 text-accent-green" />
             </div>
-            <div>
-              <div className="text-2xl font-black" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--accent-amber)' }}>{streak}</div>
-              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Day Streak</div>
+            <h3 className="text-xl font-serif">Today's Pulse</h3>
+          </div>
+          <div className="space-y-4">
+             <div className="flex justify-between items-end border-b border-border-base pb-3">
+                <span className="text-sm text-muted">Recent Mood</span>
+                <span className="text-2xl font-black">😊 Good</span>
+             </div>
+             <div className="flex justify-between items-end">
+                <span className="text-sm text-muted">Mindfulness Goal</span>
+                <span className="text-sm font-bold text-accent-green">75% Complete</span>
+             </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ── MIDDLE SECTION: AI ASSISTANT & TASKS ──────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }} 
+          animate={{ opacity: 1, x: 0 }} 
+          transition={{ delay: 0.2 }}
+          className="glass-card !bg-accent-tan border-none group cursor-pointer"
+        >
+          <div className="absolute top-0 right-0 w-40 h-40 bg-white/20 rounded-full -mr-20 -mt-20 blur-3xl" />
+          <div className="relative z-10">
+            <h3 className="text-3xl font-serif mb-4 text-[var(--text-primary)]">Therapeutic Companion</h3>
+            <p className="text-[var(--text-primary)] opacity-80 mb-8 max-w-sm leading-relaxed">
+              "You've stayed focused for 3 days. Shall we try a calm breathing session to anchor your progress?"
+            </p>
+            <Link to="/chat" className="btn-primary !bg-[var(--text-primary)] !text-[var(--bg-surface)] no-underline">
+              Enter Sanctuary
+            </Link>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }} 
+          animate={{ opacity: 1, x: 0 }} 
+          transition={{ delay: 0.3 }}
+          className="glass-card"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <Calendar className="w-5 h-5 text-accent-primary" />
+              <h3 className="text-xl font-serif">Active Directives</h3>
             </div>
-          </motion.div>
+            {tasks?.length > 0 && <span className="badge badge-primary">{tasks.length} New</span>}
+          </div>
+          
+          <div className="space-y-4 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar">
+            {tasks?.length === 0 ? (
+              <div className="py-10 text-center opacity-40 italic">No directives assigned.</div>
+            ) : (
+              tasks.map((t, i) => (
+                <div key={i} className="p-4 rounded-2xl bg-bg-page border border-border-base flex items-center justify-between group" style={{ opacity: t.status === 'completed' ? 0.6 : 1 }}>
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${t.status === 'completed' ? 'bg-green-500/10' : 'bg-accent-primary/10'}`}>
+                      {t.status === 'completed' ? <Check className="w-5 h-5 text-green-600" /> : <Shield className="w-5 h-5 text-accent-primary" />}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm">{t.title}</h4>
+                      <p className="text-[10px] uppercase font-black tracking-widest opacity-40">Clinical Directive</p>
+                    </div>
+                  </div>
+                  {t.status !== 'completed' && (
+                    <button 
+                      onClick={async () => {
+                        try {
+                          await api.patch(`/user/tasks/${t.id}/`, { status: 'completed' });
+                          toast.success('Fulfilled! ✨');
+                          const r = await api.get('/user/tasks/');
+                          setTasks(r.data);
+                        } catch { toast.error('Failed to update.'); }
+                      }}
+                      className="btn-primary !p-2 !px-4 !rounded-lg text-[10px] font-black uppercase tracking-widest !bg-transparent !text-[var(--text-primary)] border border-[var(--text-primary)]/20 hover:!bg-[var(--text-primary)]/5"
+                    >
+                      Fulfill
+                    </button>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ── GAMES SECTION: THE GRID ────────────────────────── */}
+      <div className="mb-16">
+        <div className="flex items-center gap-3 mb-8">
+          <Brain className="w-5 h-5 text-accent-green" />
+          <h3 className="text-2xl font-serif">Cognitive Training</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {getIndividualCards(user).map((card, i) => (
+            <motion.div 
+              key={card.path} 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: 0.4 + i * 0.1 }}
+            >
+              <Link to={card.path} className="no-underline block h-full group">
+                <div className="glass-card !p-8 flex flex-col h-full relative overflow-hidden">
+                  <div className="w-14 h-14 rounded-2xl bg-bg-page flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                    <card.icon className="w-7 h-7" style={{ color: card.color }} />
+                  </div>
+                  <h3 className="text-xl font-serif mb-2">{card.title}</h3>
+                  <p className="text-sm opacity-60 leading-relaxed mb-6 font-light">{card.desc}</p>
+                  <div className="mt-auto flex items-center text-[11px] font-black uppercase tracking-widest text-accent-green opacity-0 group-hover:opacity-100 transition-opacity">
+                    Launch Session <ArrowRight className="w-3.5 h-3.5 ml-2" />
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── BOTTOM SECTION: PROGRESS ─────────────────────── */}
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }} 
+        whileInView={{ opacity: 1, y: 0 }} 
+        viewport={{ once: true }}
+        className="mb-12"
+      >
+        <div className="flex items-center gap-3 mb-8">
+          <TrendingUp className="w-5 h-5 text-accent-primary" />
+          <h3 className="text-2xl font-serif">Wellness Trajectory</h3>
+        </div>
+        <div className="glass-card min-h-[400px] flex flex-col items-center justify-center text-center">
+          <BarChart3 className="w-16 h-16 text-accent-tan mb-6 opacity-20" />
+          <h4 className="text-xl font-serif mb-2">Syncing with Clinical Data...</h4>
+          <p className="text-sm text-muted max-w-sm">
+            Your cognitive charts are being updated based on your recent sessions. Continue training to see deeper insights.
+          </p>
         </div>
       </motion.div>
 
-      {/* Today's Plan */}
-      {!loadingPlan && plan?.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card mb-8">
-          <div className="flex items-center gap-2 mb-6">
-            <Sparkles className="w-5 h-5" style={{ color: 'var(--accent-blue)' }} />
-            <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Your Gentle Plan</h2>
+      {/* ── CLINICAL CONNECTION ──────────────────────────── */}
+      <div className="mt-16 pt-16 border-t border-border-base">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <h3 className="text-2xl font-serif mb-4">Clinical Support</h3>
+            <p className="opacity-60 mb-8 max-w-lg font-light leading-relaxed">
+              If you are working with a therapist, you can link your MindVeda account to share progress and receive direct clinical guidance.
+            </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {plan.map((item, i) => (
-              <Link key={i} to={planRouteMap[item.type] || '/dashboard'}
-                className="group p-5 rounded-[20px] no-underline transition-all border-none bg-page"
-                style={{ background: 'var(--bg-surface-1)' }}>
-                <div className="font-bold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>{item.title}</div>
-                <div className="text-xs mb-3 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{item.description}</div>
-                <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                  <Clock className="w-3.5 h-3.5" /> {item.duration}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </motion.div>
-      )}
 
-      {/* Continue Task (Assigned Tasks) */}
-      {tasks?.length > 0 && (
-        <motion.div initial={{ opacity: 0, x: -18 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }} className="glass-card mb-10 overflow-hidden !p-0">
-          <div className="p-8 border-b border-border-base bg-surface-1/30 flex items-center gap-3">
-             <Calendar className="w-5 h-5 text-primary" />
-             <h2 className="text-lg font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>Active Directives</h2>
-          </div>
-          <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {Array.isArray(tasks) && tasks.map((t, i) => (
-              <div key={i} className="flex items-center justify-between p-6 rounded-[24px] bg-page border border-border-base transition-all hover:bg-surface-1" style={{ opacity: t.status === 'completed' ? 0.6 : 1 }}>
-                <div className="flex gap-4 items-center">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${t.status === 'completed' ? 'bg-green-500/10' : 'bg-primary/10'}`}>
-                    {t.status === 'completed' ? <Check className="w-6 h-6 text-green-600" /> : <Shield className="w-6 h-6 text-primary" />}
+          <div className="lg:col-span-1">
+            {therapistInfo ? (
+              <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="glass-card !p-8 shadow-xl bg-surface border-none">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-14 h-14 rounded-2xl bg-accent-green/10 flex items-center justify-center text-2xl">
+                    👨‍⚕️
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{t.title}</h4>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted">Directed by Therapist</p>
+                    <h3 className="font-bold text-lg text-[#1A1A1A]">Active Link</h3>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted">Dr. {therapistInfo}</p>
                   </div>
                 </div>
-                {t.status !== 'completed' && (
-                  <button 
-                    onClick={async () => {
-                      try {
-                        await api.patch(`/user/tasks/${t.id}/`, { status: 'completed' });
-                        toast.success('Directive fulfilled! 🌟');
-                        const r = await api.get('/user/tasks/');
-                        setTasks(r.data);
-                      } catch { toast.error('Failed to update task.'); }
-                    }}
-                    className="btn-primary !py-2 !px-5 text-[10px] font-black uppercase tracking-widest"
-                  >
-                    Fulfill
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      )}
-      {/* Main Grid Actions + Therapist Column */}
-      <div className={`grid grid-cols-1 ${therapistInfo ? 'lg:grid-cols-4' : ''} gap-8`}>
-        <div className={therapistInfo ? 'lg:col-span-3' : ''}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {getIndividualCards(user).map((card, i) => (
-              <motion.div key={card.path} initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.07 }}>
-                <Link to={card.path} className="no-underline block h-full">
-                  <div className="glass-card card-hover p-8 flex flex-col h-full group relative overflow-hidden cursor-pointer" style={{ minHeight: '180px' }}>
-                    <div className="w-14 h-14 rounded-[20px] flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110"
-                      style={{ background: `${card.color}20`, border: `1px solid ${card.color}30` }}>
-                      <card.icon className="w-7 h-7" style={{ color: card.color }} />
-                    </div>
-                    <h3 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{card.title}</h3>
-                    <p className="text-base" style={{ color: 'var(--text-secondary)' }}>{card.desc}</p>
-                  </div>
+                <Link to="/chat" className="btn-primary w-full !py-4 flex items-center justify-center gap-3 no-underline text-xs font-black uppercase tracking-widest">
+                  <MessageSquare size={18} /> Open Session
                 </Link>
               </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {therapistInfo && (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-1">
-            <div className="glass-card p-8 sticky top-24 border-none shadow-xl bg-surface">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-3xl">
-                  👨‍⚕️
-                </div>
-                <div>
-                  <h3 className="font-black text-lg tracking-tight">Active Care</h3>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted">Verified Link</p>
-                </div>
-              </div>
-
-              <div className="p-5 rounded-[20px] bg-page border border-border-base mb-6">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted mb-2">Physician</p>
-                <p className="font-black text-base text-primary">Dr. {therapistInfo}</p>
-              </div>
-
-              <Link to="/chat" className="btn-primary w-full !py-4 flex items-center justify-center gap-3 no-underline text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20">
-                <MessageSquare size={18} /> Open Session
-              </Link>
-              
-              <div className="mt-8 pt-8 border-t border-border-base">
-                <p className="text-[10px] text-muted font-medium text-center leading-relaxed">
-                  Your data is protected by hospital-grade encryption.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {!therapistInfo && (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-1">
-             <div className="glass-card p-8 border-dashed border-2 bg-page/50">
-                <h3 className="font-black text-sm mb-2">Clinical Link</h3>
-                <p className="text-xs text-muted leading-relaxed mb-6">Connect to your healthcare provider using a secure invite code.</p>
+            ) : (
+              <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="glass-card !p-8 border-dashed border-2 bg-white/40">
+                <h3 className="font-bold text-sm mb-2 text-[#1A1A1A]">Clinical Link</h3>
+                <p className="text-xs text-muted leading-relaxed mb-6 font-light">Enter your provider's code to begin sharing progress.</p>
                 <div className="space-y-4">
                   <input 
-                    className="input-field !py-3 text-sm shadow-sm" 
-                    placeholder="Enter Invite Code" 
+                    className="input-field !py-3 text-sm" 
+                    placeholder="Invite Code" 
                     value={inviteCode}
                     onChange={e => setInviteCode(e.target.value)}
                   />
@@ -568,12 +787,13 @@ function IndividualDashboard({ user }) {
                     onClick={connectTherapist}
                     className="btn-primary w-full !py-3 text-[10px] font-black uppercase tracking-widest"
                   >
-                    {connecting ? 'Validating...' : 'Secure Link'}
+                    {connecting ? 'Checking...' : 'Apply Code'}
                   </button>
                 </div>
-             </div>
-          </motion.div>
-        )}
+              </motion.div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,26 @@
 from rest_framework import serializers
-from .models import Assessment, AssessmentQuestion
+from .models import Assessment, AssessmentQuestion, Question, Option, UserResponse, UserCognitiveProfile
+
+class OptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Option
+        fields = ['id', 'text', 'value']
+
+class QuestionSerializer(serializers.ModelSerializer):
+    options = OptionSerializer(many=True, read_only=True)
+    class Meta:
+        model = Question
+        fields = ['id', 'type', 'text', 'category', 'order', 'options']
+
+class UserResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserResponse
+        fields = ['question', 'answer_text', 'answer_value']
+
+class UserCognitiveProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserCognitiveProfile
+        fields = ['condition', 'focus_score', 'stress_score', 'memory_score', 'sensory_preference', 'stimulation_preference', 'last_updated']
 
 
 class AssessmentQuestionSerializer(serializers.ModelSerializer):

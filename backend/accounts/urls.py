@@ -8,7 +8,7 @@ from .views import (
     GoalView, GoalDetailView,
     # Therapist
     TherapistVerifyView, TherapistProfileView, GenerateInviteView,
-    TherapistDashboardView, PatientDetailView,
+    TherapistDashboardView, PatientDetailView, UpdatePatientConditionView,
     SessionNotesView, SessionNoteDetailView, TherapistAnalyticsView,
     # Tasks & Notifications
     AssignTaskView,
@@ -44,6 +44,7 @@ urlpatterns = [
     path('therapist/analytics/',                  TherapistAnalyticsView.as_view(), name='therapist_analytics'),
     path('therapist/patient/<int:patient_id>/',   PatientDetailView.as_view(),      name='patient_detail'),
     path('therapist/assign-task/',                AssignTaskView.as_view(),         name='assign_task'),
+    path('therapist/update-condition/',           UpdatePatientConditionView.as_view(), name='update_condition'),
     path('therapist/notes/<int:patient_id>/',     SessionNotesView.as_view(),       name='session_notes'),
     path('therapist/notes/note/<int:pk>/',        SessionNoteDetailView.as_view(),  name='session_note_detail'),
 

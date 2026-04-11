@@ -40,7 +40,6 @@ export default function Progress() {
 
   const fetchStats  = async () => { try { const { data } = await api.get('/progress/stats/'); setStats(data); } catch {} };
   const fetchMoods  = async () => { try { const { data } = await api.get('/mood/');            setMoods(data); } catch {} };
-  const fetchStreak = async () => { try { const { data } = await api.get('/streak/');          setStreak(data); } catch {} };
 
   const logMood = async () => {
     if (!selectedMood) return;
@@ -74,8 +73,8 @@ export default function Progress() {
   const statCards = [
     { label: 'Total Sessions', value: stats?.overview?.total_sessions || 0, icon: Calendar,    color: '#7c3aed', glow: 'rgba(124,58,237,0.2)' },
     { label: 'Avg Score',      value: Math.round(stats?.overview?.avg_score || 0), icon: TrendingUp, color: '#06b6d4', glow: 'rgba(6,182,212,0.2)' },
-    { label: 'Day Streak',     value: streak.current_streak,    icon: Flame,       color: '#f59e0b', glow: 'rgba(245,158,11,0.2)' },
-    { label: 'Best Streak',    value: streak.longest_streak,    icon: Trophy,      color: '#10b981', glow: 'rgba(16,185,129,0.2)' },
+    { label: 'Mood Logs',      value: moods.length, icon: SmilePlus, color: '#10b981', glow: 'rgba(16,185,129,0.2)' },
+    { label: 'Active Goals',   value: user?.goals?.length || 0, icon: BarChart3, color: '#f59e0b', glow: 'rgba(245,158,11,0.2)' },
   ];
 
   return (

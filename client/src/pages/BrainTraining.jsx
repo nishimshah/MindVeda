@@ -1,10 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, Grid3X3, Zap, Eye, ArrowLeft, Trophy, RotateCcw, Star } from 'lucide-react';
+import { 
+  Brain, Grid3X3, Zap, Eye, ArrowLeft, Trophy, 
+  RotateCcw, Star, Loader2, Sparkles, Activity, Clock, ArrowRight
+} from 'lucide-react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 
-/* ─────────────────────── MEMORY MATCH ─────────────────────── */
+/* ─────────────────────── MINI-GAME COMPONENTS ─────────────────────── */
+// (Keeping existing mini-game components but will only show them for matching IDs)
+
 function MemoryMatch({ onBack }) {
   const emojis = ['🧠', '💡', '⭐', '🎯', '🔥', '💎', '🌟', '🎨'];
   const [cards, setCards]         = useState([]);
@@ -38,7 +43,7 @@ function MemoryMatch({ onBack }) {
         setFlipped([]);
         if (newMatched.length === cards.length) {
           setGameWon(true);
-          api.post('/progress', { activity_type: 'brain_training', game_name: 'Memory Match', score: Math.max(100 - moves * 3, 10), difficulty: 4 }).catch(() => {});
+          api.post('/games/session/', { game_name: 'Memory Match', score: Math.max(100 - moves * 3, 10) }).catch(() => {});
           toast.success('🎉 Excellent! You matched all pairs!');
         }
       } else {
@@ -53,79 +58,39 @@ function MemoryMatch({ onBack }) {
         <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5" style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.25)' }}>
           <Grid3X3 className="w-10 h-10" style={{ color: '#a78bfa' }} />
         </div>
-        <h2 className="text-3xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>Memory Match</h2>
-        <p className="text-sm mb-8" style={{ color: 'var(--text-secondary)' }}>Flip cards to find matching pairs. Test your memory!</p>
-        <button onClick={startGame} className="btn-primary !px-10">
-          Start Game
-        </button>
-        <button onClick={onBack} className="block mx-auto mt-4 text-sm cursor-pointer bg-transparent border-none flex items-center gap-1.5 justify-center" style={{ color: '#596080' }}>
-          <ArrowLeft className="w-3.5 h-3.5" /> Back to games
-        </button>
+        <h2 className="text-3xl font-black mb-2">Memory Match</h2>
+        <p className="text-sm mb-8 text-muted">Flip cards to find matching pairs. Test your memory!</p>
+        <button onClick={startGame} className="btn-primary !px-10">Start Game</button>
+        <button onClick={onBack} className="block mx-auto mt-4 text-sm text-muted">Back to gallery</button>
       </div>
     );
   }
 
   return (
     <div>
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <button onClick={onBack} className="flex items-center gap-1.5 text-sm cursor-pointer bg-transparent border-none" style={{ color: 'var(--text-muted)' }}>
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
+        <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-muted"><ArrowLeft size={16} /> Back</button>
         <div className="flex items-center gap-5 text-sm">
-          <span style={{ color: 'var(--text-muted)' }}>Moves: <strong style={{ color: 'var(--text-primary)' }}>{moves}</strong></span>
-          <span style={{ color: 'var(--text-muted)' }}>Pairs: <strong style={{ color: 'var(--accent-green)' }}>{matched.length / 2}/{cards.length / 2}</strong></span>
+          <span>Moves: <strong>{moves}</strong></span>
+          <span>Matched: <strong>{matched.length / 2}</strong></span>
         </div>
-        <button onClick={startGame} className="flex items-center gap-1.5 text-sm cursor-pointer bg-transparent border-none" style={{ color: '#a78bfa' }}>
-          <RotateCcw className="w-3.5 h-3.5" /> Reset
-        </button>
       </div>
-
-      {gameWon && (
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="text-center mb-6 p-5 rounded-2xl"
-          style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)' }}
-        >
-          <Trophy className="w-8 h-8 mx-auto mb-2" style={{ color: '#10b981' }} />
-          <p className="font-black text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: '#10b981' }}>
-            Completed in {moves} moves! 🎉
-          </p>
-        </motion.div>
-      )}
-
-      {/* Card grid */}
-      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(4, 1fr)', maxWidth: '420px', margin: '0 auto' }}>
-        {cards.map(card => {
-          const isFlipped  = flipped.includes(card.id);
-          const isMatched  = matched.includes(card.id);
-          const isRevealed = isFlipped || isMatched;
-          return (
-            <motion.button
-              key={card.id}
-              onClick={() => flipCard(card.id)}
-              whileTap={{ scale: 0.93 }}
-              className="aspect-square rounded-2xl text-3xl flex items-center justify-center cursor-pointer border-2 transition-all font-medium"
-              style={{
-                background:  isMatched ? 'rgba(16,185,129,0.12)' : isFlipped ? 'var(--accent-p-glow)' : 'var(--bg-surface-1)',
-                borderColor: isMatched ? 'var(--accent-green)' : isFlipped ? 'var(--accent-primary)' : 'var(--border-base)',
-                boxShadow:   isMatched ? '0 0 20px rgba(16,185,129,0.2)' : isFlipped ? '0 0 20px var(--accent-p-glow)' : 'none',
-                fontSize:    isRevealed ? '1.75rem' : '1.2rem',
-                color:       isRevealed ? 'var(--text-primary)' : 'var(--text-muted)',
-              }}
-            >
-              {isRevealed ? card.emoji : '?'}
-            </motion.button>
-          );
-        })}
+      <div className="grid grid-cols-4 gap-3 max-w-sm mx-auto">
+        {cards.map(card => (
+          <button
+            key={card.id}
+            onClick={() => flipCard(card.id)}
+            className={`aspect-square rounded-2xl text-2xl flex items-center justify-center transition-all ${matched.includes(card.id) || flipped.includes(card.id) ? 'bg-primary text-white' : 'bg-surface-2'}`}
+          >
+            {matched.includes(card.id) || flipped.includes(card.id) ? card.emoji : '?'}
+          </button>
+        ))}
       </div>
     </div>
   );
 }
 
-/* ─────────────────────── PATTERN GAME ─────────────────────── */
-function PatternGame({ onBack }) {
+function PatternGame({ onBack, title }) {
   const [sequence, setSequence]       = useState([]);
   const [userSequence, setUserSeq]    = useState([]);
   const [activeButton, setActiveBtn]  = useState(null);
@@ -154,7 +119,7 @@ function PatternGame({ onBack }) {
     setTimeout(() => setActiveBtn(null), 200);
     if (newSeq[newSeq.length - 1] !== sequence[newSeq.length - 1]) {
       setGameState('lost');
-      api.post('/progress', { activity_type: 'brain_training', game_name: 'Pattern Recognition', score: (level - 1) * 20, difficulty: level }).catch(() => {});
+      api.post('/games/session/', { game_name: title, score: (level - 1) * 20 }).catch(() => {});
       toast.error(`Game over! You reached level ${level}`);
       return;
     }
@@ -171,202 +136,358 @@ function PatternGame({ onBack }) {
         <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5" style={{ background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.25)' }}>
           <Eye className="w-10 h-10" style={{ color: '#22d3ee' }} />
         </div>
-        <h2 className="text-3xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>Pattern Recognition</h2>
-        <p className="text-sm mb-8" style={{ color: 'var(--text-secondary)' }}>Watch the sequence light up, then repeat it back.</p>
+        <h2 className="text-3xl font-black mb-2">{title}</h2>
+        <p className="text-sm mb-8 text-muted">Watch the sequence, then repeat it back.</p>
         <button onClick={() => startRound(1)} className="btn-primary !px-10">Start Game</button>
-        <button onClick={onBack} className="block mx-auto mt-4 text-sm cursor-pointer bg-transparent border-none flex items-center gap-1.5 justify-center" style={{ color: 'var(--text-muted)' }}>
-          <ArrowLeft className="w-3.5 h-3.5" /> Back to games
-        </button>
+        <button onClick={onBack} className="block mx-auto mt-4 text-sm text-muted">Back</button>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <button onClick={() => { setGameState('idle'); setLevel(1); }} className="flex items-center gap-1.5 text-sm cursor-pointer bg-transparent border-none" style={{ color: 'var(--text-muted)' }}>
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
-        <div className="flex items-center gap-2">
-          <Star className="w-4 h-4" style={{ color: 'var(--accent-amber)' }} />
-          <span className="font-black text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>Level {level}</span>
+    <div className="text-center">
+        <h3 className="text-xl font-black mb-8">Level {level}</h3>
+        <div className="grid grid-cols-2 gap-4 max-w-xs mx-auto">
+            {colors.map((c, i) => (
+                <button 
+                    key={i} 
+                    onClick={() => handlePress(i)}
+                    disabled={isShowing}
+                    className="aspect-square rounded-3xl border-4 transition-all"
+                    style={{ background: activeButton === i ? c : 'transparent', borderColor: c }}
+                />
+            ))}
         </div>
-      </div>
-
-      <div className="text-center mb-8">
-        <span
-          className="text-sm font-semibold px-4 py-1.5 rounded-full"
-          style={{
-            background: isShowing ? 'rgba(6,182,212,0.15)' : gameState === 'input' ? 'rgba(124,58,237,0.15)' : 'rgba(239,68,68,0.12)',
-            color:      isShowing ? '#22d3ee' : gameState === 'input' ? '#a78bfa' : '#f87171',
-            border:     '1px solid currentColor',
-          }}
-        >
-          {isShowing ? '👀 Watch carefully...' : gameState === 'input' ? `Repeat the pattern (${userSequence.length}/${sequence.length})` : gameState === 'lost' ? '💔 Wrong! Try again' : '✅ Next level...'}
-        </span>
-      </div>
-
-      <div className="grid grid-cols-2 gap-5 max-w-xs mx-auto">
-        {colors.map((color, i) => (
-          <motion.button
-            key={i}
-            onClick={() => handlePress(i)}
-            whileTap={{ scale: 0.88 }}
-            className="aspect-square rounded-3xl border-2 cursor-pointer transition-all"
-            style={{
-              background:  activeButton === i ? color : `${color}20`,
-              borderColor: activeButton === i ? color : `${color}40`,
-              boxShadow:   activeButton === i ? `0 0 40px ${color}60, 0 0 80px ${color}20` : 'none',
-            }}
-            disabled={isShowing || gameState === 'lost'}
-          />
-        ))}
-      </div>
-
-      {gameState === 'lost' && (
-        <div className="text-center mt-8">
-          <button onClick={() => { setLevel(1); startRound(1); }} className="btn-primary !px-8">
-            <RotateCcw className="w-4 h-4" /> Try Again
-          </button>
-        </div>
-      )}
     </div>
   );
 }
 
-/* ─────────────────────── REACTION TEST ─────────────────────── */
-function ReactionTest({ onBack }) {
-  const [gameState, setGameState]     = useState('idle');
-  const [startTime, setStartTime]     = useState(0);
-  const [reactionTime, setReactionTime] = useState(0);
-  const [bestTime, setBestTime]       = useState(Infinity);
-  const [attempts, setAttempts]       = useState([]);
+function SlidingPuzzle({ onBack, title }) {
+    const [tiles, setTiles] = useState([]); // Array of 0-8, 8 is the empty slot
+    const [gameState, setGameState] = useState('idle');
+    const [moves, setMoves] = useState(0);
+    const imgUrl = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1000&q=80";
 
-  const startTest = () => {
-    setGameState('waiting');
-    const delay = 1500 + Math.random() * 3000;
-    setTimeout(() => { setStartTime(Date.now()); setGameState('ready'); }, delay);
-  };
+    const shuffle = () => {
+        let arr = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        let currentTiles = [...arr];
+        let emptyIdx = 8;
+        
+        // Perfrom 200 random valid moves to shuffle thoroughly
+        for (let i = 0; i < 200; i++) {
+            const neighbors = getNeighbors(emptyIdx);
+            const moveIdx = neighbors[Math.floor(Math.random() * neighbors.length)];
+            
+            // Swap empty slot with neighbor
+            [currentTiles[emptyIdx], currentTiles[moveIdx]] = [currentTiles[moveIdx], currentTiles[emptyIdx]];
+            emptyIdx = moveIdx;
+        }
 
-  const handleClick = () => {
-    if (gameState === 'waiting') { setGameState('idle'); toast.error('Too early! Wait for the green signal.'); return; }
-    if (gameState === 'ready') {
-      const time = Date.now() - startTime;
-      setReactionTime(time);
-      setAttempts(p => [...p, time]);
-      if (time < bestTime) setBestTime(time);
-      setGameState('result');
-      api.post('/progress', { activity_type: 'brain_training', game_name: 'Reaction Test', score: Math.max(500 - time, 10), difficulty: 1 }).catch(() => {});
-    }
-  };
+        setTiles(currentTiles);
+        setMoves(0);
+        setGameState('playing');
+    };
 
-  const getRatingText = (t) => {
-    if (t < 200) return { label: 'Superhuman!', color: '#10b981' };
-    if (t < 300) return { label: 'Lightning fast!', color: '#06b6d4' };
-    if (t < 450) return { label: 'Great reflexes!', color: '#7c3aed' };
-    return { label: 'Keep practicing!', color: '#f59e0b' };
-  };
+    const getNeighbors = (idx) => {
+        const neighbors = [];
+        if (idx % 3 > 0) neighbors.push(idx - 1); // Left
+        if (idx % 3 < 2) neighbors.push(idx + 1); // Right
+        if (idx >= 3) neighbors.push(idx - 3);    // Up
+        if (idx < 6) neighbors.push(idx + 3);     // Down
+        return neighbors;
+    };
 
-  if (gameState === 'idle') {
-    return (
-      <div className="text-center py-4">
-        <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)' }}>
-          <Zap className="w-10 h-10" style={{ color: '#fbbf24' }} />
-        </div>
-        <h2 className="text-3xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>Reaction Test</h2>
-        <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>Click the moment the screen turns green!</p>
-        {attempts.length > 0 && (
-          <p className="text-xs mb-6" style={{ color: 'var(--text-muted)' }}>Your best: <strong style={{ color: 'var(--accent-amber)' }}>{bestTime}ms</strong> · {attempts.length} attempt{attempts.length > 1 ? 's' : ''}</p>
-        )}
-        <button onClick={startTest} className="btn-primary !px-10">Start Test</button>
-        <button onClick={onBack} className="block mx-auto mt-4 text-sm cursor-pointer bg-transparent border-none flex items-center gap-1.5 justify-center" style={{ color: 'var(--text-muted)' }}>
-          <ArrowLeft className="w-3.5 h-3.5" /> Back to games
-        </button>
-      </div>
-    );
-  }
+    const handleTileClick = (idx) => {
+        if (gameState !== 'playing') return;
+        const emptyIdx = tiles.indexOf(8);
+        const neighbors = getNeighbors(idx);
+        if (neighbors.includes(emptyIdx)) {
+            const newTiles = [...tiles];
+            [newTiles[idx], newTiles[emptyIdx]] = [newTiles[emptyIdx], newTiles[idx]];
+            setTiles(newTiles);
+            setMoves(m => m + 1);
+            if (checkWin(newTiles)) {
+                setGameState('won');
+                api.post('/games/session/', { game_name: title, score: Math.max(100 - moves, 20) }).catch(() => {});
+            }
+        }
+    };
 
-  const bgColors = {
-    waiting: 'rgba(239,68,68,0.1)',
-    ready:   'rgba(16,185,129,0.12)',
-    result:  'rgba(124,58,237,0.08)',
-  };
-  const borderColors = { waiting: '#ef444430', ready: '#10b98130', result: '#7c3aed30' };
-  const rating = gameState === 'result' ? getRatingText(reactionTime) : null;
+    const checkWin = (current) => {
+        return current.every((val, i) => val === i);
+    };
 
-  return (
-    <div>
-      <button onClick={() => setGameState('idle')} className="flex items-center gap-1.5 text-sm cursor-pointer bg-transparent border-none mb-6" style={{ color: 'var(--text-muted)' }}>
-        <ArrowLeft className="w-4 h-4" /> Back
-      </button>
-
-      <motion.div
-        onClick={handleClick}
-        className="rounded-3xl flex items-center justify-center cursor-pointer text-center p-8 min-h-64 select-none transition-all duration-500"
-        style={{ background: bgColors[gameState], border: `2px solid ${borderColors[gameState]}` }}
-        whileTap={{ scale: 0.98 }}
-      >
-        {gameState === 'waiting' && (
-          <motion.div animate={{ opacity: [0.6, 1, 0.6] }} transition={{ duration: 1, repeat: Infinity }}>
-            <div className="text-5xl mb-3">🔴</div>
-            <p className="text-xl font-black" style={{ fontFamily: 'Outfit, sans-serif', color: '#f87171' }}>Wait for it...</p>
-            <p className="text-sm mt-2" style={{ color: '#ef4444' }}>Don't click yet!</p>
-          </motion.div>
-        )}
-        {gameState === 'ready' && (
-          <motion.div initial={{ scale: 0.5 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 500 }}>
-            <div className="text-5xl mb-3">🟢</div>
-            <p className="text-3xl font-black" style={{ fontFamily: 'Outfit, sans-serif', color: '#10b981' }}>CLICK NOW!</p>
-          </motion.div>
-        )}
-        {gameState === 'result' && (
-          <div>
-            <div className="text-6xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: rating.color }}>
-              {reactionTime}ms
+    if (gameState === 'idle') {
+        return (
+            <div className="text-center py-8">
+                <div className="w-24 h-24 rounded-3xl overflow-hidden mx-auto mb-6 shadow-xl border-4 border-white">
+                    <img src={imgUrl} className="w-full h-full object-cover" alt="Puzzle Preview" />
+                </div>
+                <h2 className="text-3xl font-black mb-4">Visual Reconstruction</h2>
+                <p className="text-muted mb-8">Arrange the scattered pieces to restore the peaceful landscape. Trains spatial reasoning.</p>
+                <button onClick={shuffle} className="btn-primary !px-12">Start Puzzle</button>
+                <button onClick={onBack} className="block mx-auto mt-4 text-xs font-bold text-muted">Back</button>
             </div>
-            <p className="text-xl font-semibold mb-1" style={{ color: rating.color }}>{rating.label}</p>
-            {bestTime < Infinity && (
-              <p className="text-xs mb-5" style={{ color: 'var(--text-muted)' }}>Best: {bestTime}ms · Attempts: {attempts.length}</p>
+        );
+    }
+
+    return (
+        <div className="text-center">
+            <div className="flex justify-between items-center mb-6">
+                 <div>
+                    <h3 className="text-lg font-bold tracking-tight">Restoration</h3>
+                    <p className="text-[10px] text-muted font-black uppercase tracking-widest">{moves} Moves</p>
+                 </div>
+                 <button onClick={onBack} className="text-muted text-xs">Exit</button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-1 relative mx-auto" style={{ width: '300px', height: '300px' }}>
+                {tiles.map((tile, idx) => (
+                    <div
+                        key={idx}
+                        onClick={() => handleTileClick(idx)}
+                        className={`w-full h-full cursor-pointer transition-all duration-300 rounded-sm ${tile === 8 ? 'bg-transparent' : 'shadow-md border border-white/20'}`}
+                        style={tile === 8 ? {} : {
+                            backgroundImage: `url(${imgUrl})`,
+                            backgroundSize: '300px 300px',
+                            backgroundPosition: `${-(tile % 3) * 100}px ${-Math.floor(tile / 3) * 100}px`
+                        }}
+                    >
+                        {gameState === 'won' && tile === 8 && (
+                             <div className="w-full h-full" style={{ backgroundImage: `url(${imgUrl})`, backgroundSize: '300px 300px', backgroundPosition: '-200px -200px' }} />
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            {gameState === 'won' && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8">
+                    <h2 className="text-2xl font-black text-green-600 mb-4">Landscape Restored! ✨</h2>
+                    <button onClick={onBack} className="btn-primary !px-10">Done</button>
+                </motion.div>
             )}
-            <button onClick={startTest} className="btn-primary !px-8">
-              <RotateCcw className="w-4 h-4" /> Try Again
-            </button>
-          </div>
-        )}
-      </motion.div>
-    </div>
-  );
+        </div>
+    );
 }
 
-/* ─────────────────────── MAIN PAGE ────────────────────────── */
-const games = [
-  { id: 'memory',   icon: Grid3X3, title: 'Memory Match',       desc: 'A gentle exercise for your recollection.', color: 'var(--accent-lavender)', tag: 'Memory' },
-  { id: 'pattern',  icon: Eye,     title: 'Quiet Observation', desc: 'Notice the subtle changes in light.', color: 'var(--accent-blue)', tag: 'Attention' },
-  { id: 'reaction', icon: Zap,     title: 'Reaction Spark',       desc: 'A playful test of your reflexes.', color: 'var(--accent-green)', tag: 'Speed' },
-];
+function LogicPuzzle({ onBack, title }) {
+    const [numbers, setNumbers] = useState([]);
+    const [nextExpected, setNextExpected] = useState(1);
+    const [gameState, setGameState] = useState('idle');
+    const [startTime, setStartTime] = useState(null);
+
+    const start = () => {
+        const arr = Array.from({ length: 12 }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+        setNumbers(arr);
+        setNextExpected(1);
+        setGameState('playing');
+        setStartTime(Date.now());
+    };
+
+    const handleClick = (n) => {
+        if (n === nextExpected) {
+            setNextExpected(n + 1);
+            if (n === 12) {
+                const time = (Date.now() - startTime) / 1000;
+                setGameState('won');
+                api.post('/games/session/', { game_name: title, score: Math.max(100 - time, 10) }).catch(() => {});
+            }
+        } else {
+            toast.error("Find the next number in order!");
+        }
+    };
+
+    if (gameState === 'idle') {
+        return (
+            <div className="text-center py-8">
+                <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                    <Grid3X3 className="w-10 h-10 text-primary" />
+                </div>
+                <h2 className="text-3xl font-black mb-4">{title}</h2>
+                <p className="text-muted mb-8">Tap all numbers from 1 to 12 as fast as you can. Train your visual logic.</p>
+                <button onClick={start} className="btn-primary !px-12">Start Training</button>
+                <button onClick={onBack} className="block mx-auto mt-4 text-xs font-bold text-muted">Back</button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="text-center">
+            <div className="flex justify-between items-center mb-8">
+                <h3 className="text-lg font-bold">Target: <span className="text-primary text-2xl">{nextExpected}</span></h3>
+                <button onClick={onBack} className="text-muted text-xs hover:text-primary">Exit</button>
+            </div>
+            
+            {gameState === 'won' ? (
+                <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }}>
+                    <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                        <Star className="text-green-600 w-10 h-10" />
+                    </div>
+                    <h2 className="text-2xl font-black mb-6">Training Complete!</h2>
+                    <button onClick={onBack} className="btn-primary !px-10">Done</button>
+                </motion.div>
+            ) : (
+                <div className="grid grid-cols-4 gap-3">
+                    {numbers.map(n => (
+                        <button
+                            key={n}
+                            onClick={() => handleClick(n)}
+                            disabled={n < nextExpected}
+                            className={`aspect-square rounded-2xl font-black text-xl transition-all border-2 ${n < nextExpected ? 'bg-green-50 border-green-200 text-green-200 opacity-50' : 'bg-white border-primary/10 text-primary hover:border-primary shadow-sm'}`}
+                        >
+                            {n}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function ZenBreath({ onBack, title }) {
+    const [phase, setPhase] = useState('Breathe In');
+    const [timer, setTimer] = useState(4);
+    const [isActive, setIsActive] = useState(false);
+    const [rounds, setRounds] = useState(0);
+
+    useEffect(() => {
+        let interval;
+        if (isActive) {
+            interval = setInterval(() => {
+                setTimer(t => {
+                    if (t === 1) {
+                        if (phase === 'Breathe In') { setPhase('Hold'); return 4; }
+                        if (phase === 'Hold') { setPhase('Breathe Out'); return 4; }
+                        if (phase === 'Breathe Out') { 
+                            setRounds(r => r + 1);
+                            if (rounds >= 3) {
+                                setIsActive(false);
+                                api.post('/games/session/', { game_name: title, score: 95 }).catch(() => {});
+                                toast.success("Calmness Restored.");
+                                return 0;
+                            }
+                            setPhase('Breathe In'); 
+                            return 4; 
+                        }
+                    }
+                    return t - 1;
+                });
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [isActive, phase, rounds]);
+
+    if (!isActive && rounds < 4) {
+        return (
+            <div className="text-center py-8">
+                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                    <Activity className="w-10 h-10 text-primary" />
+                </div>
+                <h2 className="text-3xl font-black mb-4">{title}</h2>
+                <p className="text-muted mb-8">Four rounds of boxed breathing to regulate your nervous system.</p>
+                <button onClick={() => setIsActive(true)} className="btn-primary !px-12">Begin Inhale</button>
+                <button onClick={onBack} className="block mx-auto mt-4 text-xs font-bold text-muted">Back</button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="text-center py-12">
+            {rounds >= 4 ? (
+                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                        <Activity className="text-green-600 w-10 h-10" />
+                    </div>
+                    <h2 className="text-2xl font-black mb-6">Nervous System Regulated</h2>
+                    <button onClick={onBack} className="btn-primary !px-10">Return home</button>
+                </motion.div>
+            ) : (
+                <>
+                    <motion.div 
+                        animate={{ scale: phase === 'Breathe In' ? 1.5 : phase === 'Breathe Out' ? 1 : 1.5 }}
+                        transition={{ duration: 4, ease: "easeInOut" }}
+                        className="w-48 h-48 rounded-full bg-primary/5 border-4 border-primary/20 flex items-center justify-center mx-auto mb-10 relative"
+                    >
+                        <div className="absolute inset-0 rounded-full border-4 border-primary/10 animate-ping opacity-20" />
+                        <span className="text-4xl font-black text-primary">{timer}</span>
+                    </motion.div>
+                    <h2 className="text-3xl font-black tracking-tight mb-2">{phase}</h2>
+                    <p className="text-muted font-bold tracking-widest uppercase text-[10px]">Round {rounds + 1} of 4</p>
+                </>
+            )}
+        </div>
+    );
+}
+
+/* ─────────────────────── MAIN COMPONENT ─────────────────────── */
 
 export default function BrainTraining() {
+  const [games, setGames] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeGame, setActiveGame] = useState(null);
 
-  const renderGame = () => {
-    switch (activeGame) {
-      case 'memory':   return <MemoryMatch  onBack={() => setActiveGame(null)} />;
-      case 'pattern':  return <PatternGame  onBack={() => setActiveGame(null)} />;
-      case 'reaction': return <ReactionTest onBack={() => setActiveGame(null)} />;
-      default:         return null;
+  useEffect(() => {
+    fetchGames();
+  }, []);
+
+  const fetchGames = async () => {
+    try {
+      const { data } = await api.get('/games/recommended/');
+      setGames(data);
+    } catch (err) {
+      toast.error('Failed to load games');
+    } finally {
+      setLoading(false);
     }
   };
 
+  const getIconForType = (type) => {
+    switch (type) {
+        case 'memory': return <Grid3X3 className="w-8 h-8" />;
+        case 'focus': return <Brain className="w-8 h-8" />;
+        case 'reaction': return <Zap className="w-8 h-8" />;
+        case 'calming': return <Activity className="w-8 h-8" />;
+        default: return <Sparkles className="w-8 h-8" />;
+    }
+  };
+
+  const getColorForGame = (index) => {
+    const colors = ['#f5f1e8', '#e7f0fd', '#f0f7ed', '#f2eff8', '#fdf2ed'];
+    return colors[index % colors.length];
+  };
+
+  const renderGame = () => {
+    if (!activeGame) return null;
+    const g = activeGame;
+    if (g.name.includes('Memory') || g.name.includes('Sequence')) return <MemoryMatch onBack={() => setActiveGame(null)} />;
+    if (g.name.includes('Pattern') || g.name.includes('Chaos')) return <PatternGame title={g.name} onBack={() => setActiveGame(null)} />;
+    // User specifically wants the picture puzzle to show up for "Logic Puzzle"
+    if (g.name.includes('Puzzle') || g.name.includes('Visual')) return <SlidingPuzzle title={g.name} onBack={() => setActiveGame(null)} />;
+    if (g.name.includes('Logic')) return <LogicPuzzle title={g.name} onBack={() => setActiveGame(null)} />;
+    if (g.name.includes('Zen') || g.name.includes('Breath') || g.name.includes('Flow')) return <ZenBreath title={g.name} onBack={() => setActiveGame(null)} />;
+    
+    // Fallback
+    return <SlidingPuzzle title={g.name} onBack={() => setActiveGame(null)} />;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin w-10 h-10 text-primary" />
+      </div>
+    );
+  }
+
   return (
-    <div className="page-container max-w-5xl mx-auto">
+    <div className="page-container max-w-7xl mx-auto px-6 py-12">
       <AnimatePresence mode="wait">
         {activeGame ? (
           <motion.div
-            key="game"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y:  0 }}
-            exit={{ opacity: 0 }}
-            className="glass-card !p-12 max-w-2xl mx-auto border-none shadow-xl"
+            key="active-game"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="glass-card !p-12 max-w-3xl mx-auto shadow-2xl border-none"
           >
             {renderGame()}
           </motion.div>
@@ -377,40 +498,84 @@ export default function BrainTraining() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <div className="mb-12">
-              <h1 className="section-title">Mindful Play</h1>
-              <p className="text-secondary text-lg">Strengthen your focus at your own pace. No timers, no pressure.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {games.map((game, i) => (
-                <motion.button
-                  key={game.id}
+            <header className="mb-20 text-center">
+                <motion.div 
                   initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y:  0 }}
-                  transition={{ delay: i * 0.1 }}
-                  onClick={() => setActiveGame(game.id)}
-                  whileHover={{ y: -8 }}
-                  className="glass-card !p-10 text-center flex flex-col items-center group border-none bg-surface-1 shadow-none"
+                  animate={{ opacity: 1, y: 0 }}
+                  className="inline-flex items-center gap-2 badge badge-primary mb-6 px-4 py-1.5"
                 >
-                  <div
-                    className="w-20 h-20 rounded-[32px] flex items-center justify-center mb-8 transition-all duration-500 group-hover:shadow-2xl"
-                    style={{ background: game.color, boxShadow: `0 15px 35px -10px ${game.color}60` }}
-                  >
-                    <game.icon className="w-10 h-10 text-slate-800" />
-                  </div>
+                  <Sparkles className="w-3.5 h-3.5 text-accent-green" />
+                  <span className="text-[10px] tracking-[0.15em] font-black">Cognitive Sanctuary</span>
+                </motion.div>
+                <h1 className="text-6xl md:text-7xl font-serif font-black mb-6">
+                  Precision <span className="italic font-normal opacity-60">Training.</span>
+                </h1>
+                <p className="text-lg opacity-60 max-w-2xl mx-auto font-light leading-relaxed mb-8">
+                  AI-curated exercises designed specifically for your neuro-profile. 
+                  Gentle daily practice strengthens neuroplastic paths.
+                </p>
+                <div className="flex justify-center gap-12 border-y border-border-base py-6 max-w-xl mx-auto">
+                   <div className="text-center">
+                      <div className="text-2xl font-black">12</div>
+                      <div className="text-[10px] uppercase tracking-widest text-muted">Sessions</div>
+                   </div>
+                   <div className="text-center">
+                      <div className="text-2xl font-black text-accent-green">89.4</div>
+                      <div className="text-[10px] uppercase tracking-widest text-muted">Focus Score</div>
+                   </div>
+                   <div className="text-center">
+                      <div className="text-2xl font-black text-accent-primary">92%</div>
+                      <div className="text-[10px] uppercase tracking-widest text-muted">Recall Rate</div>
+                   </div>
+                </div>
+            </header>
 
-                  <h3 className="text-2xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>
-                    {game.title}
-                  </h3>
-                  <p className="text-sm text-secondary leading-relaxed">
-                    {game.desc}
-                  </p>
-                  
-                  <div className="mt-8 text-[10px] font-black uppercase tracking-[0.25em] text-muted opacity-40 group-hover:opacity-100 transition-opacity">
-                    TAP TO START
-                  </div>
-                </motion.button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+              {games.map((game, i) => (
+                <motion.div
+                  key={game.id}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="group relative cursor-pointer"
+                  onClick={() => setActiveGame(game)}
+                >
+                    <div className="glass-card !p-10 h-full flex flex-col items-start transition-all duration-500 group-hover:shadow-2xl border-none">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-accent-tan/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-accent-tan/10 transition-colors" />
+                        
+                        <div 
+                            className="w-16 h-16 rounded-[22px] flex items-center justify-center mb-10 transition-transform duration-500 group-hover:scale-110 relative z-10"
+                            style={{ background: i % 2 === 0 ? 'var(--accent-tan)' : 'var(--accent-green-light)' }}
+                        >
+                            <div className="opacity-80 group-hover:opacity-100 transition-opacity">
+                              {getIconForType(game.type)}
+                            </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-3 mb-4 relative z-10">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-accent-primary">{game.type}</span>
+                            <div className="w-1 h-1 rounded-full bg-border-base" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-accent-primary">Lvl {game.difficulty_level}</span>
+                        </div>
+
+                        <h3 className="text-2xl font-serif font-black mb-4 group-hover:translate-x-1 transition-transform relative z-10">
+                            {game.name}
+                        </h3>
+                        <p className="text-sm opacity-60 leading-relaxed mb-10 font-light relative z-10">
+                            {game.description || "A targeted cognitive exercise tailored by AI for your condition."}
+                        </p>
+
+                        <div className="mt-auto w-full pt-8 border-t border-border-base flex items-center justify-between relative z-10">
+                            <div className="flex items-center gap-2 text-accent-primary">
+                                <Clock size={14} />
+                                <span className="text-[10px] font-black uppercase tracking-widest">~4 MIN</span>
+                            </div>
+                            <span className="text-[11px] font-black uppercase tracking-widest flex items-center gap-2">
+                                Begin <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                            </span>
+                        </div>
+                    </div>
+                </motion.div>
               ))}
             </div>
           </motion.div>

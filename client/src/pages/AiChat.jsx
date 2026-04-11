@@ -143,30 +143,30 @@ export default function AiChat() {
       >
         {loadingHistory ? (
           <div className="flex items-center justify-center h-full">
-            <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#7c3aed' }} />
+            <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--accent-primary)' }} />
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center max-w-sm mx-auto">
             <div
-              className="w-16 h-16 rounded-3xl flex items-center justify-center mb-4 pulse-glow"
-              style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.2), rgba(6,182,212,0.15))', border: '1px solid rgba(124,58,237,0.3)' }}
+              className="w-20 h-20 rounded-[2rem] flex items-center justify-center mb-6 shadow-2xl"
+              style={{ background: 'linear-gradient(135deg, #1e293b, #0f172a)', border: '1px solid rgba(251,191,36,0.3)' }}
             >
-              <MessageSquare className="w-8 h-8" style={{ color: '#a78bfa' }} />
+              <Shield className="w-10 h-10" style={{ color: '#fbbf24' }} />
             </div>
-            <h3 className="font-black text-lg mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
-              Start a conversation
+            <h3 className="font-black text-2xl mb-2 tracking-tight" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
+              MindVeda Assistant
             </h3>
-            <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
-              I'm here to listen, support, and help you grow. ❤️
+            <p className="text-sm mb-8 px-4" style={{ color: 'var(--text-muted)' }}>
+              A secure, clinical-grade companion for your cognitive journey.
             </p>
             {/* Suggested starters */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
               {STARTERS.map(s => (
                 <button
                   key={s}
                   onClick={() => sendMessage(s)}
-                  className="px-3 py-2.5 rounded-xl text-xs text-left cursor-pointer border-none transition-all"
-                  style={{ background: 'var(--accent-p-glow)', border: '1px solid var(--accent-primary)', color: 'var(--accent-primary)', fontWeight: 600 }}
+                  className="px-4 py-3 rounded-2xl text-xs text-left cursor-pointer border-none transition-all hover:translate-y-[-2px] active:scale-95"
+                  style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border-base)', color: 'var(--text-secondary)', fontWeight: 600 }}
                 >
                   "{s}"
                 </button>
@@ -174,38 +174,38 @@ export default function AiChat() {
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <AnimatePresence initial={false}>
               {messages.map((msg, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1,  y: 0 }}
-                  transition={{ duration: 0.25 }}
+                  transition={{ duration: 0.3 }}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {msg.role === 'assistant' && (
                     <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center mr-2 mt-1 shrink-0"
-                      style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)' }}
+                      className="w-8 h-8 rounded-xl flex items-center justify-center mr-3 mt-1 shrink-0 shadow-lg"
+                      style={{ background: 'linear-gradient(135deg, #27272a, #09090b)', border: '1px solid #fbbf2433' }}
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-white" />
+                      <Shield className="w-4 h-4" style={{ color: '#fbbf24' }} />
                     </div>
                   )}
-                  <div style={{ maxWidth: '75%' }}>
+                  <div style={{ maxWidth: '80%' }}>
                     <div
-                      className="px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm"
+                      className="px-5 py-3.5 rounded-2xl text-[13.5px] leading-relaxed shadow-sm"
                       style={msg.role === 'user'
                         ? { background: 'var(--accent-primary)', color: '#fff', borderBottomRightRadius: '4px' }
-                        : { background: 'var(--bg-surface-2)', color: 'var(--text-secondary)', border: '1px solid var(--border-base)', borderBottomLeftRadius: '4px' }
+                        : { background: 'var(--bg-surface-2)', color: 'var(--text-primary)', border: '1px solid var(--border-base)', borderBottomLeftRadius: '4px' }
                       }
                     >
                       {msg.content}
                     </div>
                     {msg.sentiment && msg.role === 'user' && (
-                      <div className="flex items-center gap-1 mt-1 justify-end">
+                      <div className="flex items-center gap-2 mt-2 justify-end opacity-60 hover:opacity-100 transition-opacity">
                         <SentimentIcon sentiment={msg.sentiment} />
-                        <span className="text-xs capitalize" style={{ color: 'var(--text-muted)' }}>{msg.sentiment}</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>{msg.sentiment} Analysis</span>
                       </div>
                     )}
                   </div>

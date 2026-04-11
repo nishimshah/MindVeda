@@ -22,7 +22,7 @@ function PasswordStrength({ password }) {
   ];
   if (!password) return null;
   const score = checks.filter(c => c.ok).length;
-  const colors = ['#f87171', '#fbbf24', '#34d399'];
+  const colors = ['#f87171', '#D6CFC7', 'var(--accent-green)'];
   const labels = ['Weak', 'Fair', 'Strong'];
 
   return (
@@ -82,33 +82,31 @@ export default function Signup() {
       {/* ── LEFT BRAND PANEL ─────────────────────────────── */}
       <div className="hidden lg:flex flex-col justify-between w-[48%] p-16 relative z-10">
         <Link to="/" className="flex items-center gap-3 no-underline group w-max">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-indigo-600 shadow-sm group-hover:scale-105 transition-transform duration-300">
-            <Logo className="w-6 h-6 text-white" color="#fff" />
-          </div>
-          <span className="font-heading font-black text-xl text-slate-800 dark:text-slate-100">
+          <Logo className="w-18 h-18 group-hover:scale-105 transition-transform duration-300" />
+          <span className="font-serif font-black text-2xl tracking-tight">
             MindVeda
           </span>
         </Link>
 
         <div>
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-6 py-1.5 px-4 rounded-full bg-indigo-50 dark:bg-indigo-900/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
+          <div className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-accent-green mb-8 py-2 px-5 rounded-full bg-accent-green/10">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" />
             Start Your Journey
           </div>
-          <h2 className="text-6xl md:text-7xl font-black leading-[1.05] mb-8" style={{ fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.04em', color: 'var(--text-primary)' }}>
-            Train your<br />
-            <span className="text-indigo-600">mind. Find peace.</span>
+          <h2 className="text-7xl font-serif font-black leading-[1.1] mb-8">
+            Train your <br />
+            <span className="italic font-normal opacity-60">mind. Find peace.</span>
           </h2>
-          <p className="text-lg max-w-md leading-relaxed mb-12" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-xl max-w-md font-light leading-relaxed mb-16 text-[#5C5C5C]">
             A space built just for you — adaptive, accessible, and always on your side.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8">
+          <div className="grid grid-cols-1 gap-6">
             {brandPoints.map(p => (
-              <div key={p.text} className="flex items-center gap-3.5 group">
-                <div className="w-10 h-10 rounded-xl bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-xl shadow-sm">
+              <div key={p.text} className="flex items-center gap-5 group">
+                <div className="w-12 h-12 rounded-2xl bg-white border border-[#EBE7E0] flex items-center justify-center text-xl shadow-soft group-hover:scale-105 transition-transform duration-500">
                   {p.icon}
                 </div>
-                <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{p.text}</span>
+                <span className="text-sm font-medium text-[#5C5C5C]">{p.text}</span>
               </div>
             ))}
           </div>
@@ -131,37 +129,33 @@ export default function Signup() {
         >
           {/* Mobile logo */}
           <div className="flex flex-col items-center gap-4 mb-10 lg:hidden text-center">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-indigo-600 shadow-lg">
-              <Logo className="w-7 h-7 text-white" color="#fff" />
-            </div>
+            <Logo className="w-16 h-16" />
             <div>
-              <h3 className="font-heading font-black text-2xl tracking-tight" style={{ color: 'var(--text-primary)' }}>MindVeda</h3>
+              <h3 className="font-heading font-black text-2xl tracking-tight" style={{ color: '#1A1A1A' }}>MindVeda</h3>
               <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Adaptive wellness platform</p>
             </div>
           </div>
 
-          <div className="glass-card p-10 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-indigo-600" />
-
+          <div className="glass-card !p-12 shadow-2xl relative overflow-hidden border-none">
             <div className="mb-10">
-              <h1 className="text-4xl font-black mb-3" style={{ fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>
+              <h1 className="text-4xl font-serif font-black mb-3">
                 Sign up
               </h1>
-              <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+              <p className="text-sm font-light opacity-60">
                 Start your mental wellness journey — free forever
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-widest mb-2.5 ml-1" style={{ color: 'var(--text-muted)' }}>Full Name</label>
+                <label className="block text-[10px] font-black uppercase tracking-[0.2em] mb-3 ml-1 text-[#A89F91]">Full Name</label>
                 <div className="relative group">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 transition-colors group-focus-within:text-indigo-600" style={{ color: 'var(--text-muted)' }} />
+                  <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[#A89F91] group-focus-within:text-accent-green transition-colors" />
                   <input
                     type="text"
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    className="input-field !pl-12 !h-14 !rounded-2xl !bg-slate-50 dark:!bg-slate-900/40 !border-slate-200 dark:!border-slate-800 focus:!border-indigo-600"
+                    className="input-field !pl-14 !h-14 !rounded-full !bg-[#F8F6F4] !border-[#EBE7E0] focus:!border-accent-green"
                     placeholder="Your name"
                     required
                   />
@@ -169,14 +163,14 @@ export default function Signup() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-widest mb-2.5 ml-1" style={{ color: 'var(--text-muted)' }}>Email Address</label>
+                <label className="block text-[10px] font-black uppercase tracking-[0.2em] mb-3 ml-1 text-[#A89F91]">Email Address</label>
                 <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 transition-colors group-focus-within:text-indigo-600" style={{ color: 'var(--text-muted)' }} />
+                  <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[#A89F91] group-focus-within:text-accent-green transition-colors" />
                   <input
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    className="input-field !pl-12 !h-14 !rounded-2xl !bg-slate-50 dark:!bg-slate-900/40 !border-slate-200 dark:!border-slate-800 focus:!border-indigo-600"
+                    className="input-field !pl-14 !h-14 !rounded-full !bg-[#F8F6F4] !border-[#EBE7E0] focus:!border-accent-green"
                     placeholder="you@email.com"
                     required
                   />
@@ -184,21 +178,21 @@ export default function Signup() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-widest mb-2.5 ml-1" style={{ color: 'var(--text-muted)' }}>Create Password</label>
+                <label className="block text-[10px] font-black uppercase tracking-[0.2em] mb-3 ml-1 text-[#A89F91]">Create Password</label>
                 <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 transition-colors group-focus-within:text-indigo-600" style={{ color: 'var(--text-muted)' }} />
+                  <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[#A89F91] group-focus-within:text-accent-green transition-colors" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    className="input-field !pl-12 !pr-12 !h-14 !rounded-2xl !bg-slate-50 dark:!bg-slate-900/40 !border-slate-200 dark:!border-slate-800 focus:!border-indigo-600"
+                    className="input-field !pl-14 !pr-14 !h-14 !rounded-full !bg-[#F8F6F4] !border-[#EBE7E0] focus:!border-accent-green"
                     placeholder="At least 6 characters"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 border-none bg-transparent cursor-pointer p-1 text-slate-400 hover:text-indigo-600 transition-colors"
+                    className="absolute right-5 top-1/2 -translate-y-1/2 border-none bg-transparent cursor-pointer p-1 text-[#A89F91] hover:text-accent-green transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
                   </button>
@@ -209,19 +203,19 @@ export default function Signup() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full !h-14 !text-base !rounded-2xl !shadow-indigo-200/50 dark:!shadow-none mt-2"
+                className="btn-primary w-full !h-14 !text-xs !rounded-full !shadow-lg !shadow-accent-green/10 mt-4 font-black uppercase tracking-widest"
               >
                 {loading
                   ? <><Loader2 className="w-5 h-5 animate-spin" /> Creating account…</>
-                  : <span className="flex items-center gap-2">Create account <ArrowRight className="w-4 h-4" /></span>
+                  : <span className="flex items-center justify-center gap-2">Create account <ArrowRight className="w-4 h-4" /></span>
                 }
               </button>
             </form>
 
-            <div className="mt-10 pt-8 border-t border-slate-100 dark:border-slate-800 text-center">
-              <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+            <div className="mt-12 pt-10 border-t border-[#EBE7E0]/50 text-center">
+              <p className="text-sm font-light text-[#5C5C5C]">
                 Already have an account?{' '}
-                <Link to="/login" className="text-indigo-600 font-bold hover:text-indigo-700 transition-colors no-underline ml-1">
+                <Link to="/login" className="text-[#1A1A1A] font-black hover:text-accent-green transition-colors no-underline ml-1">
                   Sign in here
                 </Link>
               </p>

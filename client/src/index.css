@@ -1,164 +1,203 @@
 /* ============================================================
-   MindVeda — Three-Theme Premium Design System
+   MindVeda — Redesigned Calm & Therapeutic Design System
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @layer base {
   :root, [data-theme="light"] {
-    --bg-page: #F5F1E8; /* Warm beige background */
+    --bg-page: #F8F6F4; /* Soft White */
     --bg-surface: #FFFFFF;
-    --bg-surface-1: #E9E4D9;
-    --bg-surface-2: #DFD9CD;
-    --text-primary: #2E2E2E; /* Soft charcoal */
-    --text-secondary: #6B7280; /* Muted gray */
-    --text-muted: #9CA3AF; /* Light gray hint */
+    --bg-surface-1: #D6CFC7; /* Light Beige / Secondary */
+    --bg-surface-2: #E5E1DA; 
+    --text-primary: #2E2E2E; 
+    --text-secondary: #5C5C5C; 
+    --text-muted: #8E8E8E; 
+    --accent-primary: #A89F91; /* Warm Neutral / Primary */
+    --accent-green: #7A8F7B;   /* Calm Green / Accent */
+    --accent-tan: #D6CFC7;
     --accent-blue: #A7C7E7;
-    --accent-green: #C1DDB3;
-    --accent-lavender: #D6CDEA;
     --accent-peach: #F2C6B4;
-    --accent-primary: #A7C7E7; /* Defaulting to soft blue */
-    --border-base: #EDE8DF;
-    --radius-base: 24px; /* Larger, softer corners */
-    --shadow-soft: 0 10px 30px -10px rgba(0,0,0,0.05);
+    --accent-lavender: #D6CDEA;
+    --border-base: #EBE8E4;
+    --radius-base: 20px; 
+    --shadow-soft: 0 12px 40px -12px rgba(168, 159, 145, 0.15);
+    --shadow-hover: 0 20px 50px -15px rgba(122, 143, 123, 0.2);
   }
 
   [data-theme="dark"] {
-    --bg-page: #1C1C1E; /* Dark gray, not black */
-    --bg-surface: #2C2C2E;
-    --bg-surface-1: #3A3A3C;
-    --bg-surface-2: #48484A;
-    --text-primary: #E5E7EB; /* Soft white */
-    --text-secondary: #9CA3AF; /* Cool gray */
-    --text-muted: #6B7280;
-    --accent-primary: #A7C7E7;
-    --border-base: #3A3A3C;
+    --bg-page: #121212; 
+    --bg-surface: #1E1E1E;
+    --bg-surface-1: #2A2A2A;
+    --bg-surface-2: #333333;
+    --text-primary: #FFFFFF; 
+    --text-secondary: #D1D1D1; 
+    --text-muted: #8E8E8E;
+    --accent-primary: #A89F91;
+    --accent-green: #90A091;
+    --accent-tan: #2A2A2A;
+    --accent-blue: #3D5A80;
+    --accent-peach: #9D6B53;
+    --accent-lavender: #5E548E;
+    --border-base: #2E2E2E;
   }
 
   body {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--bg-page);
     color: var(--text-primary);
     margin: 0;
-    transition: background-color 0.5s ease, color 0.5s ease;
-    line-height: 1.6;
-    letter-spacing: 0.01em;
+    transition: background-color 0.6s ease, color 0.6s ease;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', sans-serif;
+  h1, h2, h3, h4, .font-serif {
+    font-family: 'Playfair Display', serif;
     color: var(--text-primary);
-    font-weight: 600;
+    font-weight: 700;
   }
 }
 
 @layer components {
   .glass-card {
     background: var(--bg-surface);
-    border: 1px solid var(--border-base);
     border-radius: var(--radius-base);
-    box-shadow: var(--shadow-soft);
-    padding: 2rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 2.25rem;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-card:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: var(--shadow-hover);
   }
 
   .btn-primary {
-    background: var(--accent-primary);
-    color: #2E2E2E; /* Darker text on light buttons for readability */
-    padding: 0.8rem 2rem;
-    border-radius: 9999px;
-    font-weight: 600;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--accent-green);
+    color: #FFFFFF;
+    padding: 0.9rem 2.5rem;
+    border-radius: 9999px; /* Pill shape */
+    font-weight: 500;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border: none;
     cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.01em;
   }
 
   .btn-primary:hover {
-    filter: brightness(1.05);
+    background: #6a7d6b;
     transform: translateY(-2px);
-    box-shadow: 0 8px 15px -5px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px -5px rgba(122, 143, 123, 0.3);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 0.9rem 2.5rem;
+    border-radius: 9999px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-base);
+  }
+
+  .btn-ghost:hover {
+    background: var(--bg-surface-1);
+    color: var(--text-primary);
   }
 
   .input-field {
     width: 100%;
-    padding: 1rem 1.25rem;
-    border-radius: 18px;
-    border: 2px solid var(--border-base);
+    padding: 1.1rem 1.5rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-base);
     background: var(--bg-surface);
     color: var(--text-primary);
     outline: none;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
   }
 
   .input-field:focus {
-    border-color: var(--accent-blue);
+    border-color: var(--accent-primary);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 4px rgba(168, 159, 145, 0.1);
   }
 
   .page-container {
-    max-width: 1280px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 3rem 1.5rem;
+    padding: 4rem 2rem;
     width: 100%;
   }
 
-  /* Professional card spacing */
-  .grid-layout {
-    display: grid;
-    gap: 1.5rem;
-  }
-
   .section-title {
-    font-size: 3rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-    letter-spacing: -0.04em;
-    line-height: 1.1;
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    font-family: 'Playfair Display', serif;
   }
 
   .section-subtitle {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     color: var(--text-secondary);
-    margin-bottom: 2.5rem;
-    max-width: 600px;
+    margin-bottom: 3rem;
+    max-width: 700px;
+    font-weight: 400;
   }
 
   .badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.35rem 1rem;
+    padding: 0.4rem 1.1rem;
     border-radius: 9999px;
-    font-size: 0.7rem;
-    font-weight: 800;
+    font-size: 0.75rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
   }
 
   .badge-primary {
-    background: rgba(167, 199, 231, 0.2);
-    color: #5a8bd0;
-    border: 1px solid rgba(167, 199, 231, 0.4);
+    background: var(--accent-tan);
+    color: #6C665F;
+    border: 1px solid rgba(168, 159, 145, 0.2);
   }
 
-  .glass-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px -15px rgba(0,0,0,0.08);
+  .gradient-text-hero {
+    background: linear-gradient(135deg, #7A8F7B, #A89F91);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }
 
-/* Animations for neurodivergent comfort */
-.smooth-transition {
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+/* Transitions */
+.fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
 }
 
-.breathing-animation {
-  animation: breathe 8s infinite ease-in-out;
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes breathe {
-  0%, 100% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.05); opacity: 1; }
+/* Subtle grain texture */
+.grainy {
+  position: relative;
+}
+.grainy::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  opacity: 0.015;
+  pointer-events: none;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
 }

@@ -18,24 +18,21 @@ urlpatterns = [
     # ─── Auth (signup, login, logout, me, select-role) ───────────────────
     path('api/auth/', include('accounts.urls')),
 
-    # ─── Role-based APIs (user, parent, therapist, admin, notifications) ─
+    # ─── Combined App APIs ──────────────────────────────────────────────
     path('api/', include('accounts.urls')),
-
-    # ─── Assessment ──────────────────────────────────────────────────────
-    path('api/assessment/', include('assessments.urls')),
-
-    # ─── Therapy (chat + mood) ───────────────────────────────────────────
+    path('api/', include('assessments.urls')),
     path('api/', include('therapy.urls')),
+    path('api/', include('games.urls')),
+    path('api/', include('analytics.urls')),
 
-    # ─── Games + Progress ────────────────────────────────────────────────
+    # Legacy / Backwards Compatibility
+    path('api/assessment/', include('assessments.urls')),
     path('api/games/', include('games.urls')),
     path('api/progress/', include('games.urls')),
-
-    # ─── Analytics + Streaks + Plan ──────────────────────────────────────
     path('api/analytics/', include('analytics.urls')),
     path('api/plan/', include('analytics.urls')),
     path('api/streak/', include('analytics.urls')),
-
+    
     # ─── Recommendations (ML) ────────────────────────────────────────────
     path('api/recommendations/', include('recommendations.urls')),
 ]

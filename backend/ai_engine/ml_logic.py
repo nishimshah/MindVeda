@@ -73,3 +73,38 @@ def predict_best_tasks(user, candidate_tasks):
     # Sort candidates by predicted improvement
     predictions.sort(key=lambda x: x[1], reverse=True)
     return [p[0] for p in predictions]
+
+def recommend_games(user, games):
+    """
+    Ranks games based on UserCognitiveProfile and history.
+    """
+    try:
+        profile = user.cognitive_profile
+    except:
+        return games # Fallback
+
+    # Simple heuristic-based ranking
+    # 1. Matching condition (Condition-specific games first)
+    # 2. Matching stimulation preference
+    # 3. Balancing difficulty (Progressive difficulty)
+
+    ranked_list = []
+    for game in games:
+        score = 0
+        
+        # Condition match
+        if game.category == profile.condition:
+            score += 50
+            
+        # Stimulation preference match (e.g. "Low Stimulation")
+        if profile.stimulation_preference and profile.stimulation_preference.lower() in game.description.lower():
+            score += 20
+        
+        # Difficulty balance: Target +/- 2 levels from user's current progress
+        # For now, just a small boost for difficulty around 5
+        score += (10 - abs(game.difficulty_level - 5))
+        
+        ranked_list.append((game, score))
+
+    ranked_list.sort(key=lambda x: x[1], reverse=True)
+    return [x[0] for x in ranked_list]

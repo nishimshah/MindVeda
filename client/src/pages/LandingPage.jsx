@@ -1,310 +1,191 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { MessageCircle, BarChart3, Wind, Sparkles, Shield, Users, Zap, ArrowRight, Star } from 'lucide-react';
-import AnimatedBackground from '../components/AnimatedBackground';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  MessageCircle, BarChart3, Wind, Sparkles, 
+  Shield, Users, Zap, ArrowRight, Star, Heart
+} from 'lucide-react';
 import Logo from '../components/Logo';
 
 const features = [
-  { icon: Logo,           title: 'Brain Training',   desc: 'Adaptive cognitive games that learn and scale with your progress.', color: '#7c3aed', glow: 'rgba(124,58,237,0.25)' },
-  { icon: MessageCircle,  title: 'AI Companion',     desc: 'A calm, empathetic AI trained to support your mental wellness.', color: '#06b6d4', glow: 'rgba(6,182,212,0.2)' },
-  { icon: BarChart3,      title: 'Progress Insights',desc: 'Beautiful charts that show your cognitive journey over time.', color: '#10b981', glow: 'rgba(16,185,129,0.2)' },
-  { icon: Wind,           title: 'Calm Zone',        desc: 'Breathe, meditate, and unwind with guided relaxation sessions.', color: '#f59e0b', glow: 'rgba(245,158,11,0.2)' },
-  { icon: Shield,         title: 'Neurodiverse-Ready',desc: 'ADHD, Dyslexia, and Autism modes built in — no workarounds.', color: '#ec4899', glow: 'rgba(236,72,153,0.2)' },
-  { icon: Users,          title: 'For Every Age',    desc: 'Personalized experiences from age 6 to 100+.', color: '#8b5cf6', glow: 'rgba(139,92,246,0.2)' },
+  { icon: Heart,          title: 'Emotional Support', desc: 'A compassionate space designed for your mental wellbeing.', color: '#7A8F7B' },
+  { icon: MessageCircle,  title: 'AI Companion',      desc: 'An empathetic assistant that listens and understands.', color: '#A89F91' },
+  { icon: BarChart3,      title: 'Progress Insights', desc: 'Gentle visualizations of your wellness journey.', color: '#7A8F7B' },
+  { icon: Wind,           title: 'Guided Calm',       desc: 'Breathwork and meditations to anchor your day.', color: '#A89F91' },
+  { icon: Shield,         title: 'Secure & Private',  desc: 'Your data is encrypted and stays with you.', color: '#7A8F7B' },
+  { icon: Users,          title: 'Inclusive Design',  desc: 'Modes for ADHD, Autism, and neurodiversity.', color: '#A89F91' },
 ];
-
-const testimonials = [
-  { name: 'Arjun M.', role: 'Student, 19',   text: 'MindVeda helped me focus during exam prep. The brain games are genuinely fun and effective.', stars: 5 },
-  { name: 'Priya S.', role: 'Working Mom',    text: 'The calm zone is my 5-minute escape every evening. The AI therapist actually listens.', stars: 5 },
-  { name: 'Dev R.',   role: 'ADHD, 14',       text: 'The ADHD mode removes all the noise. Finally an app that understands how I think.', stars: 5 },
-];
-
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.09 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 28 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] } },
-};
 
 export default function LandingPage() {
+  const [stage, setStage] = useState(0); // 0: Logo, 1: Tagline, 2: Final
+
+  useEffect(() => {
+    const timer1 = setTimeout(() => setStage(1), 1800);
+    const timer2 = setTimeout(() => setStage(2), 4800);
+    return () => { clearTimeout(timer1); clearTimeout(timer2); };
+  }, []);
+
   return (
-    <div className="min-h-screen relative" style={{ overflowX: 'hidden', background: 'var(--bg-page)' }}>
-      <AnimatedBackground variant="hero" />
-
-      {/* ── NAVBAR ─────────────────────────────────────────── */}
-      <header className="relative z-10 max-w-7xl mx-auto px-6 pt-6">
-        <nav className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm"
-              style={{ background: 'var(--accent-primary)' }}
-            >
-              <Logo className="w-5 h-5 text-white" color="#fff" />
-            </div>
-            <span className="font-bold text-lg" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
-              MindVeda
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link to="/login" className="btn-ghost text-sm !px-5 !py-2 no-underline" style={{ borderRadius: '100px' }}>
-              Log In
-            </Link>
-            <Link to="/signup" className="btn-primary text-sm !px-5 !py-2 no-underline">
-              Get Started <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </nav>
-      </header>
-
-      {/* ── HERO ───────────────────────────────────────────── */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 pt-24 pb-20 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1,  y: 0 }}
-          transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          {/* Pill badge */}
-          <div className="inline-flex items-center gap-2 badge badge-primary mb-8">
-            <Sparkles className="w-3.5 h-3.5" />
-            AI-Powered Mental Wellness Platform
-          </div>
-
-          <h1
-            className="text-6xl md:text-8xl font-black leading-[1.05] mb-6"
-            style={{ fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.03em' }}
+    <div className="min-h-screen relative grainy" style={{ background: 'var(--bg-page)' }}>
+      <AnimatePresence>
+        {stage < 2 && (
+          <motion.div
+            key="intro"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 1.2, ease: "easeInOut" } }}
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#1A1A1A]"
           >
-            Your Mind,{' '}
-            <br />
-            <span className="gradient-text-hero">Reimagined.</span>
-          </h1>
-
-          <p className="text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10" style={{ color: 'var(--text-secondary)' }}>
-            MindVeda blends adaptive brain training, empathetic AI therapy, and guided calm — all
-            in one beautifully crafted space. Personalized for every kind of mind.
-          </p>
-
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <Link to="/signup" className="btn-primary text-base no-underline">
-              <Zap className="w-5 h-5" /> Start Free Today
-            </Link>
-            <Link to="/login" className="btn-ghost text-base no-underline">
-              I Have an Account
-            </Link>
-          </div>
-        </motion.div>
-
-        {/* Hero dashboard preview card */}
-        <motion.div
-          initial={{ opacity: 0, y: 60, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.9, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="mt-20 max-w-4xl mx-auto"
-        >
-          <div
-            className="rounded-3xl p-1 relative overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, var(--accent-p-glow), var(--accent-s-light)15, var(--accent-rose)15)',
-              boxShadow: 'var(--shadow-xl), 0 0 0 1px var(--glass-border)',
-            }}
-          >
-            <div
-              className="rounded-[22px] p-8 relative"
-              style={{ background: 'var(--bg-surface)', backdropFilter: 'blur(20px)' }}
-            >
-              {/* Window chrome dots */}
-              <div className="flex items-center gap-1.5 mb-6">
-                <div className="w-3 h-3 rounded-full" style={{ background: '#ef4444' }} />
-                <div className="w-3 h-3 rounded-full" style={{ background: '#f59e0b' }} />
-                <div className="w-3 h-3 rounded-full" style={{ background: '#10b981' }} />
-                <div className="ml-4 text-xs px-4 py-1 rounded-full" style={{ background: 'var(--bg-surface-2)', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
-                  mindveda.app/dashboard
-                </div>
-              </div>
-
-              {/* Mini dashboard preview */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                {[
-                  { label: 'Sessions', value: '24', color: '#7c3aed' },
-                  { label: 'Streak',   value: '7🔥', color: '#f59e0b' },
-                  { label: 'Avg Score',value: '86',  color: '#06b6d4' },
-                  { label: 'Mood',     value: '😊 Good', color: '#10b981' },
-                ].map(s => (
-                  <div key={s.label} className="rounded-xl p-3 text-left" style={{ background: 'var(--bg-surface-1)', border: '1px solid var(--border-base)' }}>
-                    <div className="text-xl font-bold mb-0.5" style={{ fontFamily: 'Outfit, sans-serif', color: s.color }}>{s.value}</div>
-                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {[
-                  { icon: '🧠', label: 'Brain Training', tag: 'Play now' },
-                  { icon: '💬', label: 'AI Companion',   tag: 'Chat' },
-                  { icon: '🌿', label: 'Calm Zone',      tag: 'Breathe' },
-                ].map(c => (
-                  <div key={c.label} className="rounded-xl p-4 flex items-center gap-3" style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border-base)' }}>
-                    <div className="text-2xl">{c.icon}</div>
-                    <div>
-                      <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)', fontFamily: 'Outfit, sans-serif' }}>{c.label}</div>
-                      <div className="text-xs" style={{ color: 'var(--accent-primary)' }}>{c.tag} →</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ── FEATURES ────────────────────────────────────────── */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <p className="text-sm font-semibold uppercase tracking-widest mb-4" style={{ color: '#7c3aed' }}>
-            Everything you need
-          </p>
-          <h2 className="text-4xl md:text-5xl font-black mb-4" style={{ fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.02em' }}>
-            Built for every mind
-          </h2>
-          <p className="text-lg max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
-            A complete cognitive wellness platform, meticulously designed and AI-powered.
-          </p>
-        </motion.div>
-
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
-        >
-          {features.map(f => (
             <motion.div
-              key={f.title}
-              variants={item}
-              className="glass-card card-hover p-7 group cursor-default"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="mb-8"
             >
-              <div
-                className="w-13 h-13 rounded-2xl flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
-                style={{ background: `${f.color}15`, boxShadow: `0 0 20px ${f.glow}`, width: '52px', height: '52px' }}
-              >
-                <f.icon className="w-6 h-6" style={{ color: f.color }} />
-              </div>
-              <h3 className="font-bold text-lg mb-2" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>
-                {f.title}
-              </h3>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                {f.desc}
-              </p>
+              <Logo className="w-44 h-44 brightness-[2]" />
             </motion.div>
-          ))}
-        </motion.div>
-      </section>
 
-      {/* ── TESTIMONIALS ────────────────────────────────────── */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-16">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <h2 className="text-3xl md:text-4xl font-black mb-3" style={{ fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.02em' }}>
-            Loved by real users
-          </h2>
-          <p style={{ color: 'var(--text-secondary)' }}>Real stories from our community</p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {testimonials.map((t, i) => (
-            <motion.div
-              key={t.name}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="glass-card p-6"
-            >
-              <div className="flex gap-0.5 mb-4">
-                {Array.from({ length: t.stars }).map((_, j) => (
-                  <Star key={j} className="w-4 h-4 fill-current" style={{ color: '#f59e0b' }} />
-                ))}
-              </div>
-              <p className="text-sm leading-relaxed mb-5" style={{ color: 'var(--text-secondary)' }}>
-                "{t.text}"
-              </p>
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shadow-sm"
-                  style={{ background: 'var(--accent-primary)', color: '#fff', fontFamily: 'Outfit, sans-serif' }}
+            <AnimatePresence>
+              {stage === 1 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8 }}
+                  className="text-center px-6"
                 >
-                  {t.name[0]}
-                </div>
-                <div>
-                  <div className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{t.name}</div>
-                  <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{t.role}</div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+                  <h2 className="text-3xl md:text-5xl font-serif text-white/90 italic tracking-tight">
+                    "Your mind deserves peace."
+                  </h2>
+                  <motion.p 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1, duration: 0.8 }}
+                    className="mt-4 text-white/50 font-medium uppercase tracking-[0.2em] text-xs"
+                  >
+                    Not just tracking. Understanding.
+                  </motion.p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* ── CTA BANNER ─────────────────────────────────────── */}
-      <section className="relative z-10 max-w-5xl mx-auto px-6 py-16">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="rounded-3xl p-12 text-center relative overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, var(--page-gradient-1) 0%, var(--page-gradient-2) 100%)',
-            border: '1px solid var(--border-base)',
-            boxShadow: 'var(--shadow-xl), 0 0 60px var(--accent-p-glow)',
-          }}
-        >
-          {/* Background glow */}
-          <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 50%, var(--accent-p-glow) 0%, transparent 70%)' }} />
-          <div className="relative z-10">
-            <div className="text-5xl mb-4">🧠</div>
-            <h2 className="text-4xl md:text-5xl font-black mb-4" style={{ fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-              Your journey starts<br />
-              <span className="gradient-text-hero">right here.</span>
-            </h2>
-            <p className="text-lg mb-8" style={{ color: 'var(--text-secondary)' }}>
-              Join thousands finding clarity, focus, and peace with MindVeda.
-            </p>
-            <Link to="/signup" className="btn-primary text-base no-underline">
-              <Sparkles className="w-5 h-5" /> Start Free — No Credit Card
-            </Link>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ── FOOTER ────────────────────────────────────────── */}
-      <footer className="relative z-10 border-t py-8" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center shadow-sm" style={{ background: 'var(--accent-primary)' }}>
-              <Logo className="w-4 h-4 text-white" color="#fff" />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: stage === 2 ? 1 : 0 }}
+        transition={{ duration: 1.5 }}
+      >
+        {/* ── NAVBAR ─────────────────────────────────────────── */}
+        <header className="relative z-10 max-w-7xl mx-auto px-6 py-8">
+          <nav className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Logo className="w-16 h-16" />
+              <span className="font-serif font-black text-2xl tracking-tight">
+                MindVeda
+              </span>
             </div>
-            <span className="font-semibold text-sm" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--text-muted)' }}>MindVeda</span>
+            <div className="flex items-center gap-6">
+              <Link to="/login" className="text-sm font-semibold text-secondary hover:text-primary transition-colors no-underline">
+                Sign In
+              </Link>
+              <Link to="/signup" className="btn-primary no-underline">
+                Begin Journey
+              </Link>
+            </div>
+          </nav>
+        </header>
+
+        {/* ── HERO ───────────────────────────────────────────── */}
+        <section className="relative z-10 max-w-6xl mx-auto px-6 pt-20 pb-32 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <div className="inline-flex items-center gap-2 badge badge-primary mb-10 px-6 py-2">
+              <Sparkles className="w-4 h-4 text-accent-green" />
+              <span className="text-[10px] tracking-[0.15em]">Clinical Grade AI Sanctuary</span>
+            </div>
+
+            <h1 className="text-6xl md:text-8xl font-serif font-black leading-[1.1] mb-8">
+              A gentler way to <br />
+              <span className="italic font-normal opacity-70">restore your focus.</span>
+            </h1>
+
+            <p className="text-xl md:text-2xl leading-relaxed max-w-2xl mx-auto mb-12 opacity-70 font-light">
+              We blended adaptive neuroscience with empathetic AI to build a space that doesn’t just record your day—it helps you navigate it.
+            </p>
+
+            <div className="flex items-center justify-center gap-6 flex-wrap">
+              <Link to="/signup" className="btn-primary text-lg !px-10 !py-4 no-underline group">
+                Join MindVeda <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ── FEATURES ────────────────────────────────────────── */}
+        <section className="max-w-7xl mx-auto px-6 py-32">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((f, i) => (
+              <motion.div
+                key={f.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                className="glass-card"
+              >
+                <div 
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
+                  style={{ background: `${f.color}15` }}
+                >
+                  <f.icon className="w-7 h-7" style={{ color: f.color }} />
+                </div>
+                <h3 className="text-2xl font-serif mb-3">{f.title}</h3>
+                <p className="opacity-60 leading-relaxed font-light">
+                  {f.desc}
+                </p>
+              </motion.div>
+            ))}
           </div>
-          <p className="text-sm" style={{ color: 'var(--text-faint)' }}>
-            © 2026 MindVeda — Built with ❤️ for every mind
-          </p>
-          <div />
-        </div>
-      </footer>
+        </section>
+
+        {/* ── TESTIMONIAL ────────────────────────────────────── */}
+        <section className="bg-white/40 border-y border-border-base py-32">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <div className="flex justify-center gap-1 mb-10">
+              {[1,2,3,4,5].map(i => <Star key={i} className="w-5 h-5 fill-[#7A8F7B] text-[#7A8F7B]" />)}
+            </div>
+            <h2 className="text-3xl md:text-5xl font-serif leading-tight mb-12">
+              "The most peaceful corner of my phone. It doesn't feel like an app; it feels like a sanctuary."
+            </h2>
+            <div className="flex items-center justify-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-accent-primary flex items-center justify-center text-white font-serif">
+                P
+              </div>
+              <div className="text-left">
+                <div className="font-bold">Priya Sharma</div>
+                <div className="text-sm opacity-50">Cognitive Wellness User</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── FOOTER ────────────────────────────────────────── */}
+        <footer className="py-20 border-t border-border-base">
+          <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div className="flex items-center gap-4">
+              <Logo className="w-10 h-10" />
+              <span className="font-serif font-black text-xl">MindVeda</span>
+            </div>
+            <div className="text-sm text-center md:text-right opacity-40 font-medium uppercase tracking-widest">
+              © 2026 Crafted with intention — Your Mind Reimagined.
+            </div>
+          </div>
+        </footer>
+      </motion.div>
     </div>
   );
 }
